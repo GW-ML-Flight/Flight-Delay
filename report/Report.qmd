@@ -1,7 +1,45 @@
 ---
-title: "Report"
+title: "Flight Delay"
+format:
+  html:
+    code-fold: true
+    smooth-scroll: true
+    code-links: 
+      - text: GitHub Repo
+        icon: github
+        target: _blank
+        href: https://github.com/GW-ML-Flight/Flight-Delay
+# jupyter: python3
+toc: true
+number-sections: true
+bibliography: references.bib
+author:
+    - name: Max Eichholz
+      email: m.eichholz@gwu.edu
+    - name: Liza Mozolyuk
+      email: lizamozolyuk@gwu.edu
+    - name: Zack Rahbar
+      email: zackrahbar@gwu.edu
+    - name: Lauren Schmidt
+      email: laurenschmidt@gwu.edu
+    - name: Ozzy Simpson
+      email: ozzy@gwu.edu
 ---
 
-## Quarto
+## Introduction
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+## Methods
+
+### Data
+
+### Model
+
+### Measuring Success
+
+## Results
+
+## Future Work
+
+## References
+::: {#refs}
+:::
