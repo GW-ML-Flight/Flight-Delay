@@ -376,6 +376,49 @@ def load_and_filter_weather_data(csv_path: str) -> pl.DataFrame:
     df_filtered = df_filtered.drop(["CIG", "cig_parts", "ceiling_valid"])
 
     # ====================================
+    # SLP cleanup
+    ## SLP format: "PRESSURE,PRESSURE_Q" (e.g. "101325,1" for 1013.25 hPa)
+    df_filtered = df_filtered.with_columns(
+        [pl.col("SLP").str.split(",").alias("slp_parts")]
+    ).with_columns(
+        [
+            pl.col("slp_parts")
+            .list.get(0)
+            .cast(pl.Int32)
+            .alias("sea_level_pressure_hpa"),
+            pl.col("slp_parts").list.get(1).alias("sea_level_pressure_q"),  # quality
+        ]
+    )
+
+    ## Drop missing values, if other columns are "bad", make all pressure columns null for that row
+    df_filtered = df_filtered.with_columns(
+        [
+            (
+                (pl.col("sea_level_pressure_hpa") != 99999)
+                & pl.col("sea_level_pressure_q").is_in(["0", "1", "4", "5", "9"])
+            ).alias("pressure_valid")
+        ]
+    )
+
+    ## If pressure is invalid, set pressure columns to null
+    df_filtered = df_filtered.with_columns(
+        [
+            pl.when(pl.col("pressure_valid"))
+            .then(pl.col("sea_level_pressure_hpa") / 10)  # Convert to hPa
+            .otherwise(None)
+            .alias("sea_level_pressure_hpa"),
+            pl.when(pl.col("pressure_valid"))
+            .then(pl.col("sea_level_pressure_q"))
+            .otherwise(None)
+            .alias("sea_level_pressure_q"),
+        ]
+    )
+
+    ## Drop intermediate columns we don't need anymore
+    df_filtered = df_filtered.drop(
+        ["SLP", "slp_parts", "pressure_valid", "sea_level_pressure_q"]
+    )
+    # ====================================
 
     # Drop all columns where the whole column is null (e.g. if a column didn't exist in the original dataset, it will be all nulls after selection)
     df_filtered = df_filtered[
