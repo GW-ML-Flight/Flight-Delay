@@ -418,6 +418,40 @@ def load_and_filter_weather_data(csv_path: str) -> pl.DataFrame:
     df_filtered = df_filtered.drop(
         ["SLP", "slp_parts", "pressure_valid", "sea_level_pressure_q"]
     )
+
+    # ====================================
+
+    # AA1-AA3 cleanup - liquid precipitation amount in last 1, 6, and 24 hours
+    # Format is quantity, depth dimension, condition code, quality code (e.g. "0000,1,9,1" for 0.00 mm in last 1 hour)
+
+    for aa_col in ["AA1", "AA2", "AA3"]:
+        if aa_col in df_filtered.columns:
+            # Split into parts
+            df_filtered = df_filtered.with_columns(
+                [pl.col(aa_col).str.split(",").alias(f"{aa_col}_parts")]
+            ).with_columns(
+                [
+                    pl.col(f"{aa_col}_parts").list.get(0).cast(pl.Int32).alias(f"{aa_col}_quantity"),
+                    pl.col(f"{aa_col}_parts").list.get(1).alias(f"{aa_col}_depth_dim"),
+                    pl.col(f"{aa_col}_parts").list.get(2).alias(f"{aa_col}_condition_code"),
+                    pl.col(f"{aa_col}_parts").list.get(3).alias(f"{aa_col}_quality_code"),
+                ]
+            )  
+
+            # Set quantity to null if quality code is bad or value is 9999
+            df_filtered = df_filtered.with_columns(
+                [
+                    pl.when(
+                        (pl.col(f"{aa_col}_quantity") != 9999)
+                        & pl.col(f"{aa_col}_quality_code").is_in(["0", "1", "4", "5", "9"])
+                    )
+                    .then(pl.col(f"{aa_col}_quantity") / 10)  # Convert to mm
+                    .otherwise(None)
+                    .alias(f"{aa_col}_quantity")
+                ]
+            )
+    
+
     # ====================================
 
     # Drop all columns where the whole column is null (e.g. if a column didn't exist in the original dataset, it will be all nulls after selection)
