@@ -235,6 +235,7 @@ def load_and_filter_weather_data(csv_path: str) -> pl.DataFrame:
     df_filtered = df_filtered.drop(
         ["DEW", "dew_parts", "dew_point_q", "dew_valid", "dew_point"]
     )
+
     # ====================================
     # VIS cleanup
     ## VIS format: "DISTANCE,DISTANCE_Q,VARIABILITY,VARIABILITY_Q" (e.g. "016000,1,9,9")
@@ -311,6 +312,68 @@ def load_and_filter_weather_data(csv_path: str) -> pl.DataFrame:
             "visibility_variability",
         ]
     )
+
+    # ====================================
+    # CIG cleanup
+    ## CIG format: "CEILING_HEIGHT_DIM,CEILING_Q,CEILING_DETERMINATION_CODE,CAVOK_FLAG" (e.g. "9999,1,9,N")
+    df_filtered = df_filtered.with_columns(
+        [pl.col("CIG").str.split(",").alias("cig_parts")]
+    ).with_columns(
+        [
+            pl.col("cig_parts").list.get(0).cast(pl.Int32).alias("ceiling_height_m"),
+            pl.col("cig_parts").list.get(1).alias("ceiling_q"),
+            pl.col("cig_parts").list.get(2).alias("ceiling_determination_code"),
+            pl.col("cig_parts").list.get(3).alias("cavok_flag"),
+        ]
+    )
+
+    ## Drop missing values, if other columns are "bad", make all ceiling columns null for that row
+    df_filtered = df_filtered.with_columns(
+        [
+            (
+                (pl.col("ceiling_height_m") != 99999)
+                & (pl.col("ceiling_q").is_in(["0", "1", "4", "5", "9"]))
+                & (pl.col("ceiling_determination_code") != "9")
+            ).alias("ceiling_valid")
+        ]
+    )
+
+    ## If ceiling is invalid, set ceiling columns to null
+    df_filtered = df_filtered.with_columns(
+        [
+            pl.when(pl.col("ceiling_valid"))
+            .then(pl.col("ceiling_height_m"))
+            .otherwise(None)
+            .alias("ceiling_height_m"),
+            pl.when(pl.col("ceiling_valid"))
+            .then(pl.col("ceiling_q"))
+            .otherwise(None)
+            .alias("ceiling_q"),
+            pl.when(pl.col("ceiling_valid"))
+            .then(pl.col("ceiling_determination_code"))
+            .otherwise(None)
+            .alias("ceiling_determination_code"),
+            pl.when(pl.col("ceiling_valid"))
+            .then(pl.col("cavok_flag"))
+            .otherwise(None)
+            .alias("cavok_flag"),
+        ]
+    )
+
+    ## Replace CAVOK flag with boolean. If Y, True; if N, false; if else, null
+    df_filtered = df_filtered.with_columns(
+        [
+            pl.when(pl.col("cavok_flag") == "Y")
+            .then(True)
+            .when(pl.col("cavok_flag") == "N")
+            .then(False)
+            .otherwise(None)
+            .alias("cavok_flag"),
+        ]
+    )
+
+    ## Drop intermediate columns we don't need anymore
+    df_filtered = df_filtered.drop(["CIG", "cig_parts", "ceiling_valid"])
 
     # ====================================
 
