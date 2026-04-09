@@ -32,6 +32,13 @@ author:
 
 ### Data
 
+#### Weather Data
+- Source: NOAA Integrated Surface Database (ISD)
+- Timeframe: 2024-01-01 to 2025-08-27 (latest available data)
+- Location/station: DCA72405013743
+- Data format: CSV files
+- Column information: https://www.ncei.noaa.gov/pub/data/noaa/isd-format-document.docx
+
 ### Model
 
 ### Measuring Success
