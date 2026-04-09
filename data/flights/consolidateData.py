@@ -1,9 +1,10 @@
-import pandas as pd
 import glob
 import os
 
+import pandas as pd
+
 # --- Configuration ---
-INPUT_PATTERN = "*.csv"          # Change to a folder path like "data/*.csv" if needed
+INPUT_PATTERN = "*.csv"  # Change to a folder path like "data/*.csv" if needed
 OUTPUT_FILE = "flightData.csv"
 CUTOFF_DATE = pd.Timestamp("2025-08-27")
 

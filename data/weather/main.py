@@ -431,26 +431,34 @@ def load_and_filter_weather_data(csv_path: str) -> pl.DataFrame:
                 [pl.col(aa_col).str.split(",").alias(f"{aa_col}_parts")]
             ).with_columns(
                 [
-                    pl.col(f"{aa_col}_parts").list.get(0).cast(pl.Int32).alias(f"{aa_col}_quantity"),
+                    pl.col(f"{aa_col}_parts")
+                    .list.get(0)
+                    .cast(pl.Int32)
+                    .alias(f"{aa_col}_quantity"),
                     pl.col(f"{aa_col}_parts").list.get(1).alias(f"{aa_col}_depth_dim"),
-                    pl.col(f"{aa_col}_parts").list.get(2).alias(f"{aa_col}_condition_code"),
-                    pl.col(f"{aa_col}_parts").list.get(3).alias(f"{aa_col}_quality_code"),
+                    pl.col(f"{aa_col}_parts")
+                    .list.get(2)
+                    .alias(f"{aa_col}_condition_code"),
+                    pl.col(f"{aa_col}_parts")
+                    .list.get(3)
+                    .alias(f"{aa_col}_quality_code"),
                 ]
-            )  
+            )
 
             # Set quantity to null if quality code is bad or value is 9999
             df_filtered = df_filtered.with_columns(
                 [
                     pl.when(
                         (pl.col(f"{aa_col}_quantity") != 9999)
-                        & pl.col(f"{aa_col}_quality_code").is_in(["0", "1", "4", "5", "9"])
+                        & pl.col(f"{aa_col}_quality_code").is_in(
+                            ["0", "1", "4", "5", "9"]
+                        )
                     )
                     .then(pl.col(f"{aa_col}_quantity") / 10)  # Convert to mm
                     .otherwise(None)
                     .alias(f"{aa_col}_quantity")
                 ]
             )
-    
 
     # ====================================
 
