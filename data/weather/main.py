@@ -187,6 +187,9 @@ def load_and_filter_weather_data(csv_path: str) -> pl.DataFrame:
         ]
     )
 
+    ## Drop intermediate columns we don't need anymore
+    df_filtered = df_filtered.drop(["TMP", "tmp_parts", "temp_q"])
+
     # ====================================
     # DEW cleanup
     ## DEW format: "DEW,DEW_Q" (e.g. "+10,1")
@@ -232,6 +235,83 @@ def load_and_filter_weather_data(csv_path: str) -> pl.DataFrame:
     df_filtered = df_filtered.drop(
         ["DEW", "dew_parts", "dew_point_q", "dew_valid", "dew_point"]
     )
+    # ====================================
+    # VIS cleanup
+    ## VIS format: "DISTANCE,DISTANCE_Q,VARIABILITY,VARIABILITY_Q" (e.g. "016000,1,9,9")
+    df_filtered = df_filtered.with_columns(
+        [pl.col("VIS").str.split(",").alias("vis_parts")]
+    ).with_columns(
+        [
+            pl.col("vis_parts").list.get(0).cast(pl.Int32).alias("visibility_m"),
+            pl.col("vis_parts").list.get(1).alias("visibility_q"),
+            pl.col("vis_parts").list.get(2).alias("visibility_variability"),
+            pl.col("vis_parts").list.get(3).alias("visibility_variability_q"),
+        ]
+    )
+
+    ## Drop missing values, if other columns are "bad", make all visibility columns null for that row
+    df_filtered = df_filtered.with_columns(
+        [
+            (
+                (pl.col("visibility_m") != 999999)
+                & pl.col("visibility_q").is_in(["0", "1", "4", "5", "9"])
+                & pl.col("visibility_variability_q").is_in(["0", "1", "4", "5", "9"])
+            ).alias("visibility_valid")
+        ]
+    )
+
+    ## Replace "9" variability with null (since "9" means "missing variability")
+    df_filtered = df_filtered.with_columns(
+        [
+            pl.when(pl.col("visibility_variability") == "9")
+            .then(None)
+            .otherwise(pl.col("visibility_variability"))
+            .alias("visibility_variability"),
+        ]
+    )
+    df_filtered = df_filtered.with_columns(
+        [
+            pl.when(pl.col("visibility_variability") == "N")
+            .then(False)
+            .otherwise(True)
+            .alias("visibility_variable"),
+        ]
+    )
+
+    ## If visibility is invalid, set visibility columns to null
+    df_filtered = df_filtered.with_columns(
+        [
+            pl.when(pl.col("visibility_valid"))
+            .then(pl.col("visibility_m"))
+            .otherwise(None)
+            .alias("visibility_m"),
+            pl.when(pl.col("visibility_valid"))
+            .then(pl.col("visibility_q"))
+            .otherwise(None)
+            .alias("visibility_q"),
+            pl.when(pl.col("visibility_valid"))
+            .then(pl.col("visibility_variable"))
+            .otherwise(None)
+            .alias("visibility_variable"),
+            pl.when(pl.col("visibility_valid"))
+            .then(pl.col("visibility_variability_q"))
+            .otherwise(None)
+            .alias("visibility_variability_q"),
+        ]
+    )
+
+    ## Drop intermediate columns we don't need anymore
+    df_filtered = df_filtered.drop(
+        [
+            "VIS",
+            "vis_parts",
+            "visibility_q",
+            "visibility_variability_q",
+            "visibility_valid",
+            "visibility_variability",
+        ]
+    )
+
     # ====================================
 
     # Drop all columns where the whole column is null (e.g. if a column didn't exist in the original dataset, it will be all nulls after selection)
