@@ -422,7 +422,7 @@ def load_and_filter_weather_data(csv_path: str) -> pl.DataFrame:
     # ====================================
 
     # AA1-AA3 cleanup - liquid precipitation amount in last 1, 6, and 24 hours
-    # Format is quantity, depth dimension, condition code, quality code (e.g. "0000,1,9,1" for 0.00 mm in last 1 hour)
+    # Format is quantity (hours), depth dimension (mm, 10 scaling factor), condition code, quality code
 
     for aa_col in ["AA1", "AA2", "AA3"]:
         if aa_col in df_filtered.columns:
@@ -435,7 +435,10 @@ def load_and_filter_weather_data(csv_path: str) -> pl.DataFrame:
                     .list.get(0)
                     .cast(pl.Int32)
                     .alias(f"{aa_col}_quantity"),
-                    pl.col(f"{aa_col}_parts").list.get(1).alias(f"{aa_col}_depth_dim"),
+                    pl.col(f"{aa_col}_parts")
+                    .list.get(1)
+                    .cast(pl.Int32)
+                    .alias(f"{aa_col}_depth_mm"),
                     pl.col(f"{aa_col}_parts")
                     .list.get(2)
                     .alias(f"{aa_col}_condition_code"),
@@ -445,19 +448,39 @@ def load_and_filter_weather_data(csv_path: str) -> pl.DataFrame:
                 ]
             )
 
+            df_filtered = df_filtered.with_columns(
+                [
+                    (
+                        (pl.col(f"{aa_col}_quantity") != 99)
+                        & (pl.col(f"{aa_col}_depth_mm") != 9999)
+                        & pl.col(f"{aa_col}_quality_code").is_in(
+                            ["0", "1", "4", "5", "9", "A", "I", "M", "P", "R", "U"]
+                        )
+                    ).alias(f"{aa_col}_valid")
+                ]
+            )
+
             # Set quantity to null if quality code is bad or value is 9999
             df_filtered = df_filtered.with_columns(
                 [
-                    pl.when(
-                        (pl.col(f"{aa_col}_quantity") != 9999)
-                        & pl.col(f"{aa_col}_quality_code").is_in(
-                            ["0", "1", "4", "5", "9"]
-                        )
-                    )
-                    .then(pl.col(f"{aa_col}_quantity") / 10)  # Convert to mm
+                    pl.when(pl.col(f"{aa_col}_valid"))
+                    .then(pl.col(f"{aa_col}_quantity"))
                     .otherwise(None)
-                    .alias(f"{aa_col}_quantity")
+                    .alias(f"{aa_col}_quantity"),
+                    pl.when(pl.col(f"{aa_col}_valid"))
+                    .then(pl.col(f"{aa_col}_depth_mm") / 10)
+                    .otherwise(None)
+                    .alias(f"{aa_col}_depth_mm"),
+                    pl.when(pl.col(f"{aa_col}_valid"))
+                    .then(pl.col(f"{aa_col}_condition_code"))
+                    .otherwise(None)
+                    .alias(f"{aa_col}_condition_code"),
                 ]
+            )
+
+            # Drop intermediate columns we don't need anymore
+            df_filtered = df_filtered.drop(
+                [aa_col, f"{aa_col}_parts", f"{aa_col}_quality_code", f"{aa_col}_valid"]
             )
 
     # ====================================
