@@ -561,6 +561,6 @@ if __name__ == "__main__":
     # Process multiple CSV files from current directory and save combined dataset
     df = process_multiple_files(
         directory=Path(__file__).parent,
-        output_path=Path(__file__).parent / "combined_weather_data.parquet",
+        output_path=Path(__file__).parent / "isd_weather_data.parquet",
     )
     basic_data_inspection(df)
