@@ -6,6 +6,13 @@ DCA_AIRPORT_ID = 11278
 START_DATE = pl.datetime(2024, 1, 1)
 END_DATE = pl.datetime(2025, 8, 27)
 
+def normalize_schema(df: pl.DataFrame) -> pl.DataFrame:
+    return df.with_columns([
+        pl.col(col).cast(pl.Float64, strict=False)
+        if col.startswith("DIV_") else pl.col(col)
+        for col in df.columns
+    ])
+
 
 def load_and_filter_flight_data(csv_path: str) -> pl.DataFrame:
     """
@@ -60,7 +67,12 @@ def process_multiple_files(directory: str | Path, output_path: str | Path | None
     Combine multiple flight CSVs.
     """
 
-    csv_files = list(Path(directory).glob("*.csv"))
+
+    csv_files = [
+        f for f in Path(directory).glob("*.csv")
+        if "Flight_Delay" in f.name
+    ]
+    #csv_files = list(Path(directory).glob("*.csv"))
 
     if not csv_files:
         raise FileNotFoundError("No CSV files found.")
@@ -71,8 +83,11 @@ def process_multiple_files(directory: str | Path, output_path: str | Path | None
         print(f"Processing {file.name}...")
         df = load_and_filter_flight_data(file)
         dfs.append(df)
+        
+    for df in dfs:
+        df = normalize_schema(df)
 
-    combined = pl.concat(dfs)
+    combined = pl.concat(dfs, how="vertical_relaxed")
 
     print(f"\nFinal shape: {combined.shape}")
 
