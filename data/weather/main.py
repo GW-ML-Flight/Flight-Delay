@@ -129,6 +129,27 @@ def load_and_filter_weather_data(csv_path: str) -> pl.DataFrame:
 
     # ====================================
 
+    # ====================================
+    # TEMPERATURE cleanup
+    ## TMP format: "TEMP,TEMP_Q" (e.g. "150,1" for 15.0°C)
+
+    df_filtered = df_filtered.with_columns([
+        pl.col("TMP").str.split(",").alias("tmp_parts")
+    ]).with_columns([
+        pl.col("tmp_parts").list.get(0).cast(pl.Int32).alias("temp_c"), 
+        pl.col("tmp_parts").list.get(1).alias("temp_q"), # quality
+    ])
+
+    ## Set temp to null if quality is bad or value is 9999
+    df_filtered = df_filtered.with_columns([
+        pl.when((pl.col("temp_c") != 9999) & pl.col("temp_q").is_in(["0", "1", "4", "5", "9"]))
+        .then(pl.col("temp_c") / 10) # Convert to °C
+        .otherwise(None)
+        .alias("temp_c")
+    ])
+
+    
+
     # Drop all columns where the whole column is null (e.g. if a column didn't exist in the original dataset, it will be all nulls after selection)
     df_filtered = df_filtered[[s.name for s in df_filtered if not (s.null_count() == df_filtered.height)]]
     
