@@ -5,7 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "ipykernel>=7.2.0",
     "isd-fetch>=0.1.8",
     "polars>=1.39.3",
     "pre-commit>=4.5.1",
+    "pyarrow>=23.0.1",
+    "sqlalchemy>=2.0.49",
 ]
