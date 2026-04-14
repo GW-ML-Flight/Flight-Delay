@@ -6,6 +6,51 @@ DCA_AIRPORT_ID = 11278
 START_DATE = pl.datetime(2024, 1, 1)
 END_DATE = pl.datetime(2025, 8, 27)
 
+# FL_DATE = Date and time for the flight 
+# MKT_UNIQUE_CARRIER, = The marketing carrier id
+# MKT_CARRIER_FL_NUM = The marketing carrier's flight number
+# ,OP_UNIQUE_CARRIER = The unique carrier code
+# ,OP_CARRIER_AIRLINE_ID = Operating Unique Carrier airline ID 
+# ,TAIL_NUM = The tail number of the plane (Can be joined with other table for plane information)
+# ,OP_CARRIER_FL_NUM = The operating carrier flight number
+# ,ORIGIN_AIRPORT_ID = The origin airport ID
+# ,ORIGIN_AIRPORT_SEQ_ID = The origin airport sequence ID (Lowkey don't know what this does. Assumed route information but I don't remember anymore)
+# ,ORIGIN_CITY_MARKET_ID = The market (City or land area) that an airport serves
+# ,ORIGIN = The origin airport code IATA code
+# ,DEST_AIRPORT_ID = The destination airport ID
+# ,DEST_AIRPORT_SEQ_ID = Destination sequence ID (See not for origin sequence ID)
+# ,CRS_DEP_TIME = The scheduled departure time
+# ,DEP_TIME = The actual departure time
+# ,DEP_DELAY = The delay in minutes
+# ,DEP_DELAY_GROUP = A grouped delay in 15 minute blocks
+# ,TAXI_OUT = The time the plane taxied out
+# ,WHEELS_OFF, = The time a plane actually took off
+# WHEELS_ON, = The time a plane actually landed at the airport
+# TAXI_IN, = When a flight landed and taxied to it's destination
+# CRS_ARR_TIME = The scheduled arrival time
+# ,ARR_TIME = The actual arrival time
+# ,ARR_DELAY = The arrival delay in minutes
+# ,CANCELLED = The flight being canceled
+# ,CANCELLATION_CODE = The reason for the flight being canceled
+# ,DIVERTED = The flight was diverted
+# ,CRS_ELAPSED_TIME, = The scheduled elapsed flight time
+# ACTUAL_ELAPSED_TIME = The actual elapsed flight time
+# ,AIR_TIME = The amount of time the plane is in the air
+# ,FLIGHTS = Number of flights
+# ,DISTANCE = The distance between destination and origin airport in miles
+# ,CARRIER_DELAY = The minutes of delay due to the carrier
+# ,WEATHER_DELAY = The minutes of delay due to weather
+# ,NAS_DELAY = The minutes of delay due to national aviation system
+# ,SECURITY_DELAY = The minutes of delay due to security
+# ,LATE_AIRCRAFT_DELAY = The minutes of delay due to late aircraft arrival
+# ,FIRST_DEP_TIME = The minutes of delay due to weather
+# ,DIV_AIRPORT_LANDINGS = The number of diverted flights that landed
+# ,DIV_REACHED_DEST = The diversion reached it's destination or not
+# ,DIV_ACTUAL_ELAPSED_TIME = The time a flight spent diverted
+
+
+
+
 def normalize_schema(df: pl.DataFrame) -> pl.DataFrame:
     return df.with_columns([
         pl.col(col).cast(pl.Float64, strict=False)
