@@ -1,5 +1,5 @@
 ---
-title: "Flight Delay"
+title: "Flight Delay" # TODO: better title
 format:
   html:
     code-fold: true
@@ -24,29 +24,93 @@ author:
       email: laurenschmidt@gwu.edu
     - name: Ozzy Simpson
       email: ozzy@gwu.edu
+abstract: |
+    We will write an abstract.
 ---
 
-## Introduction
+# Deliverables
 
-## Methods
+> What are concrete artifacts created as the result of this project? Artifacts that existed before the project do not count (e.g., existing dataset or code base); but if you made meaningful edits to existing dataset or code base, you should list them here. For example:
+>
+> -   Code base implementing a neural network architecture for some task. If based on some existing code base, provide a one-sentence summary for what you changed / improved.
+> -   Trained model weights that achieve x% accuracy on some task. This would have to be a model you trained.
+> -   Processed and cleaned dataset for training the model. If this is based on some existing dataset, say what you changed.
+> -   Leaderboard submission to some Kaggle competition that is ranked x% by date of submission (attach screenshot)
+> -   Simulation environment you built to evaluate some model. If this is based on existing simulator, what did you change?
+> -   Paper draft in preparation for conference / workshop submission (attach draft).
+>
+> You don’t have to cover all these items, nor should you limit to these.
 
-### Data
+# Experiment Design
 
-#### Weather Data
-- Source: NOAA Integrated Surface Database (ISD)
-- Timeframe: 2024-01-01 to 2025-08-27 (latest available data)
-- Location/station: DCA72405013743
-- Data format: CSV files
-- Column information: https://www.ncei.noaa.gov/pub/data/noaa/isd-format-document.docx
+> The main goal of this section is to understand: how did you convert the high level goal (e.g., “solve self driving”) into empirical experiments with measurable outcomes (e.g., “achieve x% score in this driving simulator?”)?
+>
+> If your experiment design changed a few times during the course of the project, it’s recommended that you discuss those changes and their rationale here. What are the most important decisions (e.g., “we focused on ”) in this process to ensure that the measurable outcomes best reflect the end goal you care about? What empirical results informed these decisions?
+>
+> In this section, it’s important that you clearly define how you measure success, and exactly how you do the evaluation.
 
-### Model
+# Methodology
 
-### Measuring Success
+> If your project involves modeling (I assume most projects do), describe your modeling approach here, including but not limited to architecture, data processing. If you went through iterations of modeling throughout your project, it’s recommended that you document those in this section, in particular why you decided to make those changes.\]
 
-## Results
+# Results
 
-## Future Work
+> What are the key results of your project? This should include not only the final (best) numbers you achieved in evaluation, but also how that changed over the course of the project (if you have been tracking those numbers). You can call back to the experiment design discussions about how the overall goal is converted to measurable metrics, and a discussion of what uncertainties we should maintain when interpreting these results is recommended.
 
-## References
+# Lessons Learned
+
+> If you think there are high level lessons (not specific things like one key trick in training process), share them here. This can be technical or operational, e.g., ideal frequency and format of group meetings in a collaborative project.
+
+# Attribution
+
+> What did each team member do?
+
+::: {.callout-note appearance="simple" icon="false"}
+## Max Eichholz
+
+-   
+:::
+
+::: {.callout-note appearance="simple" icon="false"}
+## Liza Mozolyuk
+
+-   
+:::
+
+::: {.callout-note appearance="simple" icon="false"}
+## Zack Rahbar
+
+-   
+:::
+
+::: {.callout-note appearance="simple" icon="false"}
+## Lauren Schmidt
+
+-   
+:::
+
+
+::: {.callout-note appearance="simple" icon="false"}
+## Ozzy Simpson
+
+-   
+:::
+
+# References
+
 ::: {#refs}
 :::
+
+------------------------------------------------------------------------
+
+# Notes
+
+## Data
+
+### Weather Data
+
+-   Source: NOAA Integrated Surface Database (ISD)
+-   Timeframe: 2024-01-01 to 2025-08-27 (latest available data)
+-   Location/station: DCA72405013743
+-   Data format: CSV files
+-   Column information: https://www.ncei.noaa.gov/pub/data/noaa/isd-format-document.docx
