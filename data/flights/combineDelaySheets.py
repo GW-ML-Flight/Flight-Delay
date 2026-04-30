@@ -14,11 +14,9 @@ END_DATE = pl.datetime(2025, 8, 27)
 # ,TAIL_NUM = The tail number of the plane (Can be joined with other table for plane information)
 # ,OP_CARRIER_FL_NUM = The operating carrier flight number
 # ,ORIGIN_AIRPORT_ID = The origin airport ID
-# ,ORIGIN_AIRPORT_SEQ_ID = The origin airport sequence ID (Lowkey don't know what this does. Assumed route information but I don't remember anymore)
 # ,ORIGIN_CITY_MARKET_ID = The market (City or land area) that an airport serves
 # ,ORIGIN = The origin airport code IATA code
 # ,DEST_AIRPORT_ID = The destination airport ID
-# ,DEST_AIRPORT_SEQ_ID = Destination sequence ID (See not for origin sequence ID)
 # ,CRS_DEP_TIME = The scheduled departure time
 # ,DEP_TIME = The actual departure time
 # ,DEP_DELAY = The delay in minutes
@@ -62,12 +60,11 @@ def normalize_schema(df: pl.DataFrame) -> pl.DataFrame:
 def load_and_filter_flight_data(csv_path: str) -> pl.DataFrame:
     """
     Load DoT flight data and filter for DCA + date range.
-    Keeps ALL columns.
+    Keeps ALL columns except sequence ID
     """
 
     df = pl.read_csv(csv_path, try_parse_dates=False)
 
-    # -----------------------------
     # Parse FL_DATE properly
     df = df.with_columns(
         pl.col("FL_DATE").str.strptime(
@@ -77,23 +74,20 @@ def load_and_filter_flight_data(csv_path: str) -> pl.DataFrame:
         )
     )
 
-    # -----------------------------
     # Filter for DCA (origin OR destination)
     df = df.filter(
         (pl.col("ORIGIN_AIRPORT_ID") == DCA_AIRPORT_ID) |
         (pl.col("DEST_AIRPORT_ID") == DCA_AIRPORT_ID)
     )
 
-    # -----------------------------
     # Filter date range
     df = df.filter(
         (pl.col("FL_DATE") >= START_DATE) &
         (pl.col("FL_DATE") <= END_DATE)
     )
 
-    # -----------------------------
-    # Optional (but useful): clean cancellation codes
-    # Replace empty strings with nulls
+    
+    # Clean cancellation codes. Replace empty strings with nulls
     if "CANCELLATION_CODE" in df.columns:
         df = df.with_columns(
             pl.when(pl.col("CANCELLATION_CODE") == "")
@@ -101,6 +95,10 @@ def load_and_filter_flight_data(csv_path: str) -> pl.DataFrame:
             .otherwise(pl.col("CANCELLATION_CODE"))
             .alias("CANCELLATION_CODE")
         )
+        
+    # Remove the sequence columns
+    df = df.drop('DEST_AIRPORT_SEQ_ID')
+    df = df.drop('ORIGIN_AIRPORT_SEQ_ID')
 
     print(f"{Path(csv_path).name}: {df.shape}")
 
@@ -111,7 +109,6 @@ def process_multiple_files(directory: str | Path, output_path: str | Path | None
     """
     Combine multiple flight CSVs.
     """
-
 
     csv_files = [
         f for f in Path(directory).glob("*.csv")
@@ -143,7 +140,7 @@ def process_multiple_files(directory: str | Path, output_path: str | Path | None
     return combined
 
 
-def basic_data_inspection(df: pl.DataFrame):
+def printData(df: pl.DataFrame):
     print("\n=== Data Inspection ===")
     print(f"Shape: {df.shape}")
     print(f"\nColumns:\n{df.columns}")
@@ -158,4 +155,4 @@ if __name__ == "__main__":
         output_path=Path(__file__).parent / "dca_flights.parquet"
     )
 
-    basic_data_inspection(df)
+    printData(df)
