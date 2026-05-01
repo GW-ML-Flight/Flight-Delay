@@ -1,16 +1,17 @@
-import polars as pl
 from pathlib import Path
+
+import polars as pl
 
 DCA_AIRPORT_ID = 11278
 
 START_DATE = pl.datetime(2024, 1, 1)
 END_DATE = pl.datetime(2025, 8, 27)
 
-# FL_DATE = Date and time for the flight 
+# FL_DATE = Date and time for the flight
 # MKT_UNIQUE_CARRIER, = The marketing carrier id
 # MKT_CARRIER_FL_NUM = The marketing carrier's flight number
 # ,OP_UNIQUE_CARRIER = The unique carrier code
-# ,OP_CARRIER_AIRLINE_ID = Operating Unique Carrier airline ID 
+# ,OP_CARRIER_AIRLINE_ID = Operating Unique Carrier airline ID
 # ,TAIL_NUM = The tail number of the plane (Can be joined with other table for plane information)
 # ,OP_CARRIER_FL_NUM = The operating carrier flight number
 # ,ORIGIN_AIRPORT_ID = The origin airport ID
@@ -47,14 +48,15 @@ END_DATE = pl.datetime(2025, 8, 27)
 # ,DIV_ACTUAL_ELAPSED_TIME = The time a flight spent diverted
 
 
-
-
 def normalize_schema(df: pl.DataFrame) -> pl.DataFrame:
-    return df.with_columns([
-        pl.col(col).cast(pl.Float64, strict=False)
-        if col.startswith("DIV_") else pl.col(col)
-        for col in df.columns
-    ])
+    return df.with_columns(
+        [
+            pl.col(col).cast(pl.Float64, strict=False)
+            if col.startswith("DIV_")
+            else pl.col(col)
+            for col in df.columns
+        ]
+    )
 
 
 def load_and_filter_flight_data(csv_path: str) -> pl.DataFrame:
@@ -68,25 +70,19 @@ def load_and_filter_flight_data(csv_path: str) -> pl.DataFrame:
     # Parse FL_DATE properly
     df = df.with_columns(
         pl.col("FL_DATE").str.strptime(
-            pl.Datetime,
-            format="%m/%d/%Y %I:%M:%S %p",
-            strict=False
+            pl.Datetime, format="%m/%d/%Y %I:%M:%S %p", strict=False
         )
     )
 
     # Filter for DCA (origin OR destination)
     df = df.filter(
-        (pl.col("ORIGIN_AIRPORT_ID") == DCA_AIRPORT_ID) |
-        (pl.col("DEST_AIRPORT_ID") == DCA_AIRPORT_ID)
+        (pl.col("ORIGIN_AIRPORT_ID") == DCA_AIRPORT_ID)
+        | (pl.col("DEST_AIRPORT_ID") == DCA_AIRPORT_ID)
     )
 
     # Filter date range
-    df = df.filter(
-        (pl.col("FL_DATE") >= START_DATE) &
-        (pl.col("FL_DATE") <= END_DATE)
-    )
+    df = df.filter((pl.col("FL_DATE") >= START_DATE) & (pl.col("FL_DATE") <= END_DATE))
 
-    
     # Clean cancellation codes. Replace empty strings with nulls
     if "CANCELLATION_CODE" in df.columns:
         df = df.with_columns(
@@ -95,26 +91,25 @@ def load_and_filter_flight_data(csv_path: str) -> pl.DataFrame:
             .otherwise(pl.col("CANCELLATION_CODE"))
             .alias("CANCELLATION_CODE")
         )
-        
+
     # Remove the sequence columns
-    df = df.drop('DEST_AIRPORT_SEQ_ID')
-    df = df.drop('ORIGIN_AIRPORT_SEQ_ID')
+    df = df.drop("DEST_AIRPORT_SEQ_ID")
+    df = df.drop("ORIGIN_AIRPORT_SEQ_ID")
 
     print(f"{Path(csv_path).name}: {df.shape}")
 
     return df
 
 
-def process_multiple_files(directory: str | Path, output_path: str | Path | None = None) -> pl.DataFrame:
+def process_multiple_files(
+    directory: str | Path, output_path: str | Path | None = None
+) -> pl.DataFrame:
     """
     Combine multiple flight CSVs.
     """
 
-    csv_files = [
-        f for f in Path(directory).glob("*.csv")
-        if "Flight_Delay" in f.name
-    ]
-    #csv_files = list(Path(directory).glob("*.csv"))
+    csv_files = [f for f in Path(directory).glob("*.csv") if "Flight_Delay" in f.name]
+    # csv_files = list(Path(directory).glob("*.csv"))
 
     if not csv_files:
         raise FileNotFoundError("No CSV files found.")
@@ -125,7 +120,7 @@ def process_multiple_files(directory: str | Path, output_path: str | Path | None
         print(f"Processing {file.name}...")
         df = load_and_filter_flight_data(file)
         dfs.append(df)
-        
+
     for df in dfs:
         df = normalize_schema(df)
 
@@ -152,7 +147,7 @@ def printData(df: pl.DataFrame):
 if __name__ == "__main__":
     df = process_multiple_files(
         directory=Path(__file__).parent,
-        output_path=Path(__file__).parent / "dca_flights.parquet"
+        output_path=Path(__file__).parent / "dca_flights.parquet",
     )
 
     printData(df)

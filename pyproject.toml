@@ -10,4 +10,5 @@ dependencies = [
     "isd-fetch>=0.1.8",
     "polars>=1.39.3",
     "pre-commit>=4.5.1",
+    "scikit-learn>=1.8.0",
 ]

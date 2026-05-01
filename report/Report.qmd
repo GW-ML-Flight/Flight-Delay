@@ -51,7 +51,7 @@ abstract: |
 
 # Methodology
 
-> If your project involves modeling (I assume most projects do), describe your modeling approach here, including but not limited to architecture, data processing. If you went through iterations of modeling throughout your project, it’s recommended that you document those in this section, in particular why you decided to make those changes.\]
+> If your project involves modeling (I assume most projects do), describe your modeling approach here, including but not limited to architecture, data processing. If you went through iterations of modeling throughout your project, it’s recommended that you document those in this section, in particular why you decided to make those changes.\
 
 # Results
 
@@ -88,7 +88,6 @@ abstract: |
 
 -   
 :::
-
 
 ::: {.callout-note appearance="simple" icon="false"}
 ## Ozzy Simpson
