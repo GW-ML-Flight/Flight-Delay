@@ -14,7 +14,7 @@ Good feature buckets
 - [ ] Carrier history features from the flight table: rolling mean delay, rolling cancellation rate, and rolling late-flight rate for MKT_UNIQUE_CARRIER over 7d and 30d. Use only flights that happened before the current row.
 - [ ] Origin airport history features from the flight table: rolling mean delay, median delay, and cancellation rate for ORIGIN_AIRPORT_ID over 7d and 30d.
 - [ ] Destination airport history features from the flight table: same idea for DEST_AIRPORT_ID. This often captures arrival-bank congestion and destination-specific patterns.
-- [ ] Route features from the flight table: combine ORIGIN_AIRPORT_ID + DEST_AIRPORT_ID and compute rolling delay stats for that route.
+- [x] Route features from the flight table: combine ORIGIN_AIRPORT_ID + DEST_AIRPORT_ID and compute rolling delay stats for that route.
 - [ ] Tail-number features from the flight table: prior delay of the same TAIL_NUM, plus time since the aircraft’s previous flight and previous arrival delay if available. This is a strong proxy for aircraft knock-on delay.
 - [ ] Delay-cause history from the flight table: rolling shares or counts of past CARRIER_DELAY, WEATHER_DELAY, NAS_DELAY, SECURITY_DELAY, and LATE_AIRCRAFT_DELAY. These should be aggregated over prior flights only, not used directly on the current row.
 - [ ] Weather threshold flags from the weather parquet joined in model-training.ipynb: low_visibility, heavy_wind, precipitation_present, freezing_temp, low_ceiling. These are simple boolean versions of your current weather columns.
