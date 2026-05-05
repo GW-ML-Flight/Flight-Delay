@@ -9,7 +9,7 @@ Some slop notes:
 
 Good feature buckets
 
-- [ ] Time of day features from FL_DATE and CRS_DEP_TIME: hour, day_of_week, month, weekend, departure_time_bucket, and optionally sine/cosine encodings for time of day. Use the scheduled departure time, not actual departure.
+- [x] Time of day features from FL_DATE and CRS_DEP_TIME: hour, day_of_week, month, weekend, departure_time_bucket, and optionally sine/cosine encodings for time of day. Use the scheduled departure time, not actual departure.
 - [x] Airport congestion features from the flight table: count of departures from the same origin airport in the last 1h, 3h, 6h, and 24h; same for arrivals into the destination airport if you have them. Derive these by sorting flights by FL_DATE and counting prior rows for the same airport.
 - [X] Carrier history features from the flight table: rolling mean delay, rolling cancellation rate, and rolling late-flight rate for MKT_UNIQUE_CARRIER over 7d and 30d. Use only flights that happened before the current row.
 - [x] Origin airport history features from the flight table: rolling mean delay, median delay, and cancellation rate for ORIGIN_AIRPORT_ID over 7d and 30d.
@@ -19,7 +19,7 @@ Good feature buckets
 - [ ] Delay-cause history from the flight table: rolling shares or counts of past CARRIER_DELAY, WEATHER_DELAY, NAS_DELAY, SECURITY_DELAY, and LATE_AIRCRAFT_DELAY. These should be aggregated over prior flights only, not used directly on the current row.
 - [ ] Weather threshold flags from the weather parquet joined in model-training.ipynb: low_visibility, heavy_wind, precipitation_present, freezing_temp, low_ceiling. These are simple boolean versions of your current weather columns.
 - [ ] Weather trend features from isd_weather_data.parquet: change in temp, pressure, windspeed, and visibility_m over the last 1h or 3h. If the weather is getting worse quickly, that matters more than the absolute value.
-- [ ] Distance transforms from DISTANCE: log(distance), distance buckets, and maybe an interaction like distance * weather_severity.
+- [x] Distance transforms from DISTANCE: log(distance), distance buckets, and maybe an interaction like distance * weather_severity.
 - [ ] Carrier-route interactions from the flight table: MKT_UNIQUE_CARRIER + route, since some carriers handle specific routes much better or worse.
 - [ ] Aircraft model features from MODEL: model frequency, model-specific average delay, and model-specific cancellation rate. This is mostly a historical lookup table.
 
