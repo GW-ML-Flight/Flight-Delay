@@ -1,5 +1,5 @@
 ---
-title: "Flight Delay" # TODO: better title
+title: "DCA Flight Delay Classification" # TODO: better title
 format:
   html:
     code-fold: true
@@ -41,6 +41,14 @@ abstract: |
 >
 > You don’t have to cover all these items, nor should you limit to these.
 
+-   Codebase – link to it
+
+-   Trained model weights
+
+-   Our cleaned dataset of both flight data and weather data
+
+    -   For weather, combined ISD lite and some full data
+
 # Experiment Design
 
 > The main goal of this section is to understand: how did you convert the high level goal (e.g., “solve self driving”) into empirical experiments with measurable outcomes (e.g., “achieve x% score in this driving simulator?”)?
@@ -49,17 +57,28 @@ abstract: |
 >
 > In this section, it’s important that you clearly define how you measure success, and exactly how you do the evaluation.
 
+-   We wanted to model the Wang paper [@wangCalibratedExplainableFlight2026] but with DCA as the focus. Goal was to get similar results as they did with BOS for DCA. Looking for things like ROC-AUC, F1-score, and accuracy.
+-   We also wanted to try to improve upon that model with additional features. This included more weather data, more derived data, and more historical data.
+-   We also tried to do more of a regression approach to predict flight delay amounts, but that approach was less successful than a classification approach. Predicting actual delay times was more challenging.
+
 # Methodology
 
 > If your project involves modeling (I assume most projects do), describe your modeling approach here, including but not limited to architecture, data processing. If you went through iterations of modeling throughout your project, it’s recommended that you document those in this section, in particular why you decided to make those changes.\
+
+-   Describe our modeling approach (e.g., various classifiers, hyperparameter search, etc.).
+-   Talk about our initial attempt of just doing a regression approach, that being difficult, and then going to the classification approach based on @wangCalibratedExplainableFlight2026.
 
 # Results
 
 > What are the key results of your project? This should include not only the final (best) numbers you achieved in evaluation, but also how that changed over the course of the project (if you have been tracking those numbers). You can call back to the experiment design discussions about how the overall goal is converted to measurable metrics, and a discussion of what uncertainties we should maintain when interpreting these results is recommended.
 
+-   Include our results from the notebook(s).
+
 # Lessons Learned
 
 > If you think there are high level lessons (not specific things like one key trick in training process), share them here. This can be technical or operational, e.g., ideal frequency and format of group meetings in a collaborative project.
+
+-   
 
 # Attribution
 
@@ -92,7 +111,9 @@ abstract: |
 ::: {.callout-note appearance="simple" icon="false"}
 ## Ozzy Simpson
 
--   
+-   Helped collect and clean weather data.
+-   Developed the model skeleton code/pipeline (i.e., importing our two datasets, merging them, setting up hyperparameter search, training, and evaluation).
+-   Led the implementation of the classification approach, especially the version closest to @wangCalibratedExplainableFlight2026.
 :::
 
 # References
