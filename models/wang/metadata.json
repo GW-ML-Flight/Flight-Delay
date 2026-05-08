@@ -1,0 +1,125 @@
+{
+  "feature_columns": [
+    "MKT_UNIQUE_CARRIER",
+    "DEST_AIRPORT_ID",
+    "CRS_DEP_TIME",
+    "CRS_ARR_TIME",
+    "CRS_ELAPSED_TIME",
+    "DISTANCE",
+    "day_of_week",
+    "day_of_month",
+    "month",
+    "is_weekend",
+    "is_holiday",
+    "temp",
+    "dewtemp",
+    "pressure",
+    "winddirection",
+    "windspeed"
+  ],
+  "categorical_columns": [
+    "MKT_UNIQUE_CARRIER"
+  ],
+  "categorical_mappings": {
+    "MKT_UNIQUE_CARRIER": {
+      "0": "AA",
+      "1": "AS",
+      "2": "B6",
+      "3": "DL",
+      "4": "F9",
+      "5": "UA",
+      "6": "WN"
+    }
+  },
+  "best_model": "HistGradientBoosting",
+  "best_model_params": {
+    "class_weight": "balanced",
+    "l2_regularization": 0.5684339488686485,
+    "learning_rate": 0.015636940130906544,
+    "max_bins": 128,
+    "max_depth": null,
+    "min_samples_leaf": 48
+  },
+  "all_models_performance": [
+    {
+      "Model": "HistGradientBoosting",
+      "ROC-AUC": 0.6539752946482554,
+      "Accuracy": 0.6202760653980166,
+      "Precision": 0.3284455902889677,
+      "Recall": 0.5761801564119476,
+      "F1-Score": 0.4183914337518388
+    },
+    {
+      "Model": "Random Forest",
+      "ROC-AUC": 0.6505114272545465,
+      "Accuracy": 0.6335432859823104,
+      "Precision": 0.3280303929716253,
+      "Recall": 0.5206821822293414,
+      "F1-Score": 0.402490986561783
+    },
+    {
+      "Model": "Decision Tree",
+      "ROC-AUC": 0.6345551256940999,
+      "Accuracy": 0.7612123648709015,
+      "Precision": 0.33884297520661155,
+      "Recall": 0.007726373315744842,
+      "F1-Score": 0.015108245048364808
+    },
+    {
+      "Model": "XGBoost",
+      "ROC-AUC": 0.6299421365381037,
+      "Accuracy": 0.7629545251496471,
+      "Precision": 0.5,
+      "Recall": 0.008009045510223311,
+      "F1-Score": 0.01576555689511268
+    },
+    {
+      "Model": "AdaBoost",
+      "ROC-AUC": 0.6298317841291505,
+      "Accuracy": 0.7626418297150005,
+      "Precision": 0.42045454545454547,
+      "Recall": 0.003486290398567794,
+      "F1-Score": 0.0069152415662087656
+    }
+  ],
+  "all_models_best_params": {
+    "Decision Tree": {
+      "criterion": "entropy",
+      "max_depth": 5,
+      "min_samples_leaf": 6,
+      "min_samples_split": 4
+    },
+    "Random Forest": {
+      "bootstrap": false,
+      "class_weight": "balanced",
+      "max_depth": 10,
+      "max_features": "log2",
+      "min_samples_leaf": 5,
+      "min_samples_split": 2,
+      "n_estimators": 390
+    },
+    "AdaBoost": {
+      "estimator__max_depth": 3,
+      "learning_rate": 0.09179688837403395,
+      "n_estimators": 243
+    },
+    "HistGradientBoosting": {
+      "class_weight": "balanced",
+      "l2_regularization": 0.5684339488686485,
+      "learning_rate": 0.015636940130906544,
+      "max_bins": 128,
+      "max_depth": null,
+      "min_samples_leaf": 48
+    },
+    "XGBoost": {
+      "colsample_bytree": 0.5734733227001876,
+      "learning_rate": 0.033856624776026724,
+      "max_depth": 5,
+      "n_estimators": 228,
+      "reg_alpha": 0,
+      "reg_lambda": 1,
+      "scale_pos_weight": 1,
+      "subsample": 0.7102697333400492
+    }
+  }
+}

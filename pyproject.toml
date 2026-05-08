@@ -13,7 +13,6 @@ dependencies = [
     "polars>=1.39.3",
     "pre-commit>=4.5.1",
     "scikit-learn>=1.8.0",
-    "skl2onnx>=1.20.0",
     "xgboost>=3.2.0",
 ]
 

@@ -7,6 +7,7 @@ See [the project report](./report/Report.qmd) for more details.
 ## Pre-requisites
 
 - [`uv`](https://astral.sh/uv/)
+- Git LFS
 - If running on macOS, you may need `libomp` installed via Homebrew.
   ```bash
   brew install libomp
