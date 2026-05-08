@@ -78,7 +78,7 @@ abstract: |
 
 > If you think there are high level lessons (not specific things like one key trick in training process), share them here. This can be technical or operational, e.g., ideal frequency and format of group meetings in a collaborative project.
 
--   
+-   Homebrew is quite difficult to work with, especially on Apple Silicon. We spent a good amount of time troubleshooting XGBoost issues incorrectly stating we were running 32-bit Python on a 64-bit OS. Ended up being able to resolve the issue by ensuring the correct version of Homebrew was installed for the architecture and installing `libopm`.
 
 # Attribution
 
