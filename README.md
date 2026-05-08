@@ -20,3 +20,4 @@ See [the project report](./report/Report.qmd) for more details.
   ```
     - Use this virtual environment as the Python kernel for any Jupyter notebooks.
     
+- Quarto, for rendering the project report.

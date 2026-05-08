@@ -41,13 +41,15 @@ abstract: |
 >
 > You don’t have to cover all these items, nor should you limit to these.
 
--   Codebase – link to it
+Our deliverables for this project include [our code base](https://github.com/GW-ML-Flight/Flight-Delay), trained model weights, and our cleaned dataset of flight and weather data. Most of these are described in further details in other sections, but this report and the [project README](https://github.com/GW-ML-Flight/Flight-Delay/blob/main/README.md) are good places to see our deliverables.
 
--   Trained model weights
+Our trained model weights are located in the [`models` directory](https://github.com/GW-ML-Flight/Flight-Delay/tree/main/models). Within that directory, there are subfolders for different models; for example, the `wang` directory has our implementation of the @wangCalibratedExplainableFlight2026 paper, but for DCA. Within the model folders, there's a JSON with data about our training (including hyperparameters and metrics on the different models), a PNG comparing the different models various metrics, and a `pkl` file with the trained model (the best from our hyperparameter/model search) that can be loaded to predict from later.
 
--   Our cleaned dataset of both flight data and weather data
+Our cleaned datasets are located in the [`data` directory](https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data). Within that, there's a subdirectory for weather data and one for flight data. For the weather data, there are CSVs with raw sensor data from the NOAA ISD dataset [@nationalcentersforenvironmentalinformationGlobalHourlyIntegrated]. There's a Python file that processes those CSVs to clean that data and make it more usable as features in our models. There is also a notebook that combines the ISD Lite dataset with some data from the full dataset that provides additional information. Finally, there is a `parquet` file that contains the final cleaned weather data.
 
-    -   For weather, combined ISD lite and some full data
+<!-- TODO: details about the flight dataset -->
+
+Ultimately, our measures for success were various performance metrics, including accuracy, precision, recall, F1-score, and ROC-AUC. Our models were scored on ROC-AUC primarily during training, but we also considered the other metrics in our final evaluation.
 
 # Experiment Design
 
@@ -57,27 +59,39 @@ abstract: |
 >
 > In this section, it’s important that you clearly define how you measure success, and exactly how you do the evaluation.
 
--   We wanted to model the Wang paper [@wangCalibratedExplainableFlight2026] but with DCA as the focus. Goal was to get similar results as they did with BOS for DCA. Looking for things like ROC-AUC, F1-score, and accuracy.
--   We also wanted to try to improve upon that model with additional features. This included more weather data, more derived data, and more historical data.
--   We also tried to do more of a regression approach to predict flight delay amounts, but that approach was less successful than a classification approach. Predicting actual delay times was more challenging.
+Our project's initial goal was to model flight delays from DC-area airports. This was a broad goal, and we changed our approach a few times throughout the project. Our initial approach was to throw most of our data into a Scikit-learn model to try to do a regression and predict numerical flight delays. We quickly realized that this approach led to poor results for many reasons: we needed to be more careful with our feature selection and preprocessing, and we needed to better understand the underlying patterns in the data. While we unfortunately did not save direct results from that initial approach, we learned a lot from it.
+
+One change we made from that initial approach was to try to first classify if a flight would be cancelled or not, and then predict the delay for the flights that are not cancelled. This helped slightly, but it still didn't give us the results we were hoping for.
+
+After that, we decided to work on our feature engineering and selection. We focused on creating more meaningful features that were derived from the raw data, such as "is the date a weekend" or "what is the delta in temperature from 1, 3, 6, and 24 hours ago." This also did not help much with that model, but the ideas of extending our features seemed promising if we changed other parts of our approach.
+
+Finally, we decided to look back at some of the papers we had read during our literature review/survey. One paper, @wangCalibratedExplainableFlight2026, provided a good foundation for our work as they used similar datasets and approaches, but for Boston Logan International Airport (BOS). From then on, this paper served as a guide for our approach. We used it as a reference point to create a new feature set for our DCA dataset, and then focused on classifying if a flight would be delayed or not. Similar to @wangCalibratedExplainableFlight2026, we also aimed to compare different tree-based models and compare their performance. This approach proved to be more successful than our previous attempts.
+
+We wanted to see if we could improve upon the results of that baseline by incorporating additional features.
+<!-- TODO: complete this last grag. -->
 
 # Methodology
 
 > If your project involves modeling (I assume most projects do), describe your modeling approach here, including but not limited to architecture, data processing. If you went through iterations of modeling throughout your project, it’s recommended that you document those in this section, in particular why you decided to make those changes.\
 
+In the [Wang notebook](https://github.com/GW-ML-Flight/Flight-Delay/blob/main/model-classifier-wang.ipynb) we implemented an adaptation of the @wangCalibratedExplainableFlight2026 workflow tailored to DCA. The notebook includes a preprocessing pipeline using Polars dataframes, a set of features derived from the raw data, and a set of tree-based classifiers (Random Forest, AdaBoost, XGBoost, Decision Tree, and Histogram-based Gradient Boosting Classification Tree) tuned with time-series cross-validation. To ensure probabilistic outputs are reliable for downstream use, model probabilities are calibrated on a held-out calibration split rather than on the final test set.
+
+The notebook also uses categorical encoding and a feature set based on the @wangCalibratedExplainableFlight2026 approach. We also perform hyperparameter searches to compare decision-tree ensembles and boosting method. We perform post-hoc interpretation steps (permutation importance) and produce artifacts (saved model + metadata) for reproducibility. (@wangCalibratedExplainableFlight2026 did SHAP analysis to interpret their model, but we opted to go with permutation importance as a simpler alternative for our use case.)
+
+<!-- TODO: talk about how we improved on Wang notebook -->
+
 -   Describe our modeling approach (e.g., various classifiers, hyperparameter search, etc.).
 -   Talk about our initial attempt of just doing a regression approach, that being difficult, and then going to the classification approach based on @wangCalibratedExplainableFlight2026.
--   Talk about features that we considered and ultimately did or did not include, and why: 
-    - Measuring distance categorically ("short", "medium", "long", "very_long"), ultimately did not include because it did not significantly improve performance. 
-    - Distance transformations including taking the log of distance and interaction (distance * weather severity), also did not include because did not significantly improve performance.
+-   Talk about features that we considered and ultimately did or did not include, and why:
+  -   Measuring distance categorically ("short", "medium", "long", "very_long"), ultimately did not include because it did not significantly improve performance.
+  -   Distance transformations including taking the log of distance and interaction (distance * weather severity), also did not include because did not significantly improve performance.
 
 # Results
 
 > What are the key results of your project? This should include not only the final (best) numbers you achieved in evaluation, but also how that changed over the course of the project (if you have been tracking those numbers). You can call back to the experiment design discussions about how the overall goal is converted to measurable metrics, and a discussion of what uncertainties we should maintain when interpreting these results is recommended.
 
--   Include our results from the notebook(s).
-
-# Lessons Learned
+-   Include our results from the notebook(s).\
+    \# Lessons Learned
 
 > If you think there are high level lessons (not specific things like one key trick in training process), share them here. This can be technical or operational, e.g., ideal frequency and format of group meetings in a collaborative project.
 
@@ -107,9 +121,12 @@ abstract: |
 
 ::: {.callout-note appearance="simple" icon="false"}
 ## Lauren Schmidt
--   Helped collect and clean weather data. 
--   Integrated features from the training approach into the classification approach, evaluating features like average delay across routes, categorical distance data, and distance transformations. 
-- Developed weather trend features including change in windspeed and precipitation over the hours closest to departure. 
+
+-   Helped collect and clean weather data.
+
+-   Integrated features from the training approach into the classification approach, evaluating features like average delay across routes, categorical distance data, and distance transformations.
+
+-   Developed weather trend features including change in windspeed and precipitation over the hours closest to departure.
 
 -   
 :::
@@ -117,7 +134,7 @@ abstract: |
 ::: {.callout-note appearance="simple" icon="false"}
 ## Ozzy Simpson
 
--   Helped collect and clean weather data.
+-   Helped collect and clean weather data into a usable Parquet format for the model.
 -   Developed the model skeleton code/pipeline (i.e., importing our two datasets, merging them, setting up hyperparameter search, training, and evaluation).
 -   Led the implementation of the classification approach, especially the version closest to @wangCalibratedExplainableFlight2026.
 :::
