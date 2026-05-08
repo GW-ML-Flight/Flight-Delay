@@ -67,6 +67,9 @@ abstract: |
 
 -   Describe our modeling approach (e.g., various classifiers, hyperparameter search, etc.).
 -   Talk about our initial attempt of just doing a regression approach, that being difficult, and then going to the classification approach based on @wangCalibratedExplainableFlight2026.
+-   Talk about features that we considered and ultimately did or did not include, and why: 
+    - Measuring distance categorically ("short", "medium", "long", "very_long"), ultimately did not include because it did not significantly improve performance. 
+    - Distance transformations including taking the log of distance and interaction (distance * weather severity), also did not include because did not significantly improve performance.
 
 # Results
 
@@ -104,6 +107,9 @@ abstract: |
 
 ::: {.callout-note appearance="simple" icon="false"}
 ## Lauren Schmidt
+-   Helped collect and clean weather data. 
+-   Integrated features from the training approach into the classification approach, evaluating features like average delay across routes, categorical distance data, and distance transformations. 
+- Developed weather trend features including change in windspeed and precipitation over the hours closest to departure. 
 
 -   
 :::
