@@ -67,6 +67,8 @@ After that, we decided to work on our feature engineering and selection. We focu
 
 Finally, we decided to look back at some of the papers we had read during our literature review/survey. One paper, @wangCalibratedExplainableFlight2026, provided a good foundation for our work as they used similar datasets and approaches, but for Boston Logan International Airport (BOS). From then on, this paper served as a guide for our approach. We used it as a reference point to create a new feature set for our DCA dataset, and then focused on classifying if a flight would be delayed or not. Similar to @wangCalibratedExplainableFlight2026, we also aimed to compare different tree-based models and compare their performance. This approach proved to be more successful than our previous attempts.
 
+Furthermore, in model-buckets.ipynb we wated to see if we could further improve our accuracy by predicting the "bucket" of delay that a flight would land in rather than the precise number of minutes and seconds. We implemented a classifier for flights to classify flights as on-time (≤15m), minor delay (15–60m), significant delay (60–120m), major delay (120–180m), or severe (180m+).
+
 We wanted to see if we could improve upon the results of that baseline by incorporating additional features.
 <!-- TODO: complete this last graf. -->
 
@@ -92,6 +94,8 @@ categorical distance encode information that the model can already infer from th
 itself, and so they provide little additional signal. In contrast, features like rolling averages of 
 weather conditions over the hours leading up to departure captured genuinely new information that the 
 model could not derive on its own, and these tended to be more useful.
+
+In trying to gain better accuracy, we built a classifcation model in model-buckets.ipynb to classify flights as on-time (≤15m), minor delay (15–60m), significant delay (60–120m), major delay (120–180m), or severe (180m+) instead of predicting exact delay amounts. To do this we modified the same classification model used to predict cancellation to predict the delay into one of the bands. We began with smaller bands of 30 minute increments, but found that the accuracy was quite low. We experimented with a variety of different band sizes and eventally landed ont he ones outlined above. We were motivated to make these changes as predicting how severe the delay would be can provide almost the same insights as an exact delay time while increasing the accuracy of our predictions. 
 
 # Results
 
@@ -129,6 +133,7 @@ model could not derive on its own, and these tended to be more useful.
 -   Helped with project ideation
 -   Helped collect and clean flight data
 -   Worked on deriving features (carrier average delay over the last week and month, carrier cancel rate over the last week and month, departures over various time periods, airport average cancel rate over various time periods, airport average cancel rate over various time periods) to improve model accuracy 
+-   Assisted with the ideation for the model skeleton
 -   Implemented the "buckets" model
 :::
 
