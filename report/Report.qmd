@@ -68,7 +68,7 @@ After that, we decided to work on our feature engineering and selection. We focu
 Finally, we decided to look back at some of the papers we had read during our literature review/survey. One paper, @wangCalibratedExplainableFlight2026, provided a good foundation for our work as they used similar datasets and approaches, but for Boston Logan International Airport (BOS). From then on, this paper served as a guide for our approach. We used it as a reference point to create a new feature set for our DCA dataset, and then focused on classifying if a flight would be delayed or not. Similar to @wangCalibratedExplainableFlight2026, we also aimed to compare different tree-based models and compare their performance. This approach proved to be more successful than our previous attempts.
 
 We wanted to see if we could improve upon the results of that baseline by incorporating additional features.
-<!-- TODO: complete this last grag. -->
+<!-- TODO: complete this last graf. -->
 
 # Methodology
 
@@ -78,24 +78,34 @@ In the [Wang notebook](https://github.com/GW-ML-Flight/Flight-Delay/blob/main/mo
 
 The notebook also uses categorical encoding and a feature set based on the @wangCalibratedExplainableFlight2026 approach. We also perform hyperparameter searches to compare decision-tree ensembles and boosting method. We perform post-hoc interpretation steps (permutation importance) and produce artifacts (saved model + metadata) for reproducibility. (@wangCalibratedExplainableFlight2026 did SHAP analysis to interpret their model, but we opted to go with permutation importance as a simpler alternative for our use case.)
 
-<!-- TODO: talk about how we improved on Wang notebook -->
+Building on the foundation of the Wang notebook, we developed a second notebook that extended the 
+feature set with additional signals we hypothesized would improve performance. This included 
+aircraft model information, which captures mechanical and capacity characteristics that may correlate 
+with delay likelihood, as well as rolling average delay by route, which encodes historical 
+performance patterns for a given origin-destination pair. Our motivation for choosing such additional features was that some delays are structural, and can be influenced by certain routes or aircraft types; we wanted to create a holistic model that was not influenced solely by historic weather and schedule data.
 
--   Describe our modeling approach (e.g., various classifiers, hyperparameter search, etc.).
--   Talk about our initial attempt of just doing a regression approach, that being difficult, and then going to the classification approach based on @wangCalibratedExplainableFlight2026.
--   Talk about features that we considered and ultimately did or did not include, and why:
-  -   Measuring distance categorically ("short", "medium", "long", "very_long"), ultimately did not include because it did not significantly improve performance.
-  -   Distance transformations including taking the log of distance and interaction (distance * weather severity), also did not include because did not significantly improve performance.
+We experimented with several additional features that ultimately did not make the final model. 
+Distance was encoded both categorically (as "short," "medium," "long," and "very long") and through 
+transformations such as log distance and a distance-weather severity interaction term, but none of 
+these meaningfully improved model performance and were left out. Our theory is that features like 
+categorical distance encode information that the model can already infer from the raw distance value 
+itself, and so they provide little additional signal. In contrast, features like rolling averages of 
+weather conditions over the hours leading up to departure captured genuinely new information that the 
+model could not derive on its own, and these tended to be more useful.
 
 # Results
 
 > What are the key results of your project? This should include not only the final (best) numbers you achieved in evaluation, but also how that changed over the course of the project (if you have been tracking those numbers). You can call back to the experiment design discussions about how the overall goal is converted to measurable metrics, and a discussion of what uncertainties we should maintain when interpreting these results is recommended.
 
+<!-- TODO: Include results -->
 -   Include our results from the notebook(s).\
     \# Lessons Learned
 
 > If you think there are high level lessons (not specific things like one key trick in training process), share them here. This can be technical or operational, e.g., ideal frequency and format of group meetings in a collaborative project.
 
 -   Homebrew is quite difficult to work with, especially on Apple Silicon. We spent a good amount of time troubleshooting XGBoost issues incorrectly stating we were running 32-bit Python on a 64-bit OS. Ended up being able to resolve the issue by ensuring the correct version of Homebrew was installed for the architecture and installing `libopm`.
+
+<!--TODO: talk about challenges of finding relevant features, we had a ton of data but it was hard to narrow down what was actually helpful -->
 
 # Attribution
 
@@ -123,9 +133,7 @@ The notebook also uses categorical encoding and a feature set based on the @wang
 ## Lauren Schmidt
 
 -   Helped collect and clean weather data.
-
--   Integrated features from the training approach into the classification approach, evaluating features like average delay across routes, categorical distance data, and distance transformations.
-
+-   Integrated features from the training approach into the classification approach, evaluating features like average delay across routes, categorical distance data, and distance transformations to build upon the Wang model.
 -   Developed weather trend features including change in windspeed and precipitation over the hours closest to departure.
 
 -   
