@@ -126,7 +126,10 @@ model could not derive on its own, and these tended to be more useful.
 ::: {.callout-note appearance="simple" icon="false"}
 ## Zack Rahbar
 
--   
+-   Helped with project ideation
+-   Helped collect and clean flight data
+-   Worked on deriving features (carrier average delay over the last week and month, carrier cancel rate over the last week and month, departures over various time periods, airport average cancel rate over various time periods, airport average cancel rate over various time periods) to improve model accuracy 
+-   Implemented the "buckets" model
 :::
 
 ::: {.callout-note appearance="simple" icon="false"}
