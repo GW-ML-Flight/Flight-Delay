@@ -6,7 +6,7 @@ import polars as pl
 def load_data():
     # Read registration data with schema overrides to treat all columns as strings initially
     # This prevents Polars from incorrectly inferring numeric types for mixed columns
-    
+
     # Contains information about the actual registration
     reg = pl.read_csv(
         "data/flight_info/flightRegistration.csv",
