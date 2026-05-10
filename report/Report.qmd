@@ -98,14 +98,20 @@ model could not derive on its own, and these tended to be more useful.
 > What are the key results of your project? This should include not only the final (best) numbers you achieved in evaluation, but also how that changed over the course of the project (if you have been tracking those numbers). You can call back to the experiment design discussions about how the overall goal is converted to measurable metrics, and a discussion of what uncertainties we should maintain when interpreting these results is recommended.
 
 <!-- TODO: Include results -->
--   Include our results from the notebook(s).\
-    \# Lessons Learned
+-   Include our results from the notebook(s).
+
+# Lessons Learned
 
 > If you think there are high level lessons (not specific things like one key trick in training process), share them here. This can be technical or operational, e.g., ideal frequency and format of group meetings in a collaborative project.
 
--   Homebrew is quite difficult to work with, especially on Apple Silicon. We spent a good amount of time troubleshooting XGBoost issues incorrectly stating we were running 32-bit Python on a 64-bit OS. Ended up being able to resolve the issue by ensuring the correct version of Homebrew was installed for the architecture and installing `libopm`.
+We faced a few challenges during this project that led to some lessons learned:
 
-<!--TODO: talk about challenges of finding relevant features, we had a ton of data but it was hard to narrow down what was actually helpful -->
+-   Homebrew is quite difficult to work with, especially on Apple Silicon. We spent a good amount of time troubleshooting XGBoost incorrectly stating we were running 32-bit Python on a 64-bit OS. Ended up being able to resolve the issue by ensuring the correct version of Homebrew was installed for the architecture and installing `libopm`.
+
+-   We had so much data, but it was hard to narrow down exactly what the relevant and useful features were from that data. Looking at other similar research helped, but there were still so many possibilities of features we could include that it was difficult to narrow down.
+
+-   The weather data was especially hard to work with, because the full NOAA ISD dataset combines multiple data values into one column (they're all related, but comma-separated within the cell). We had to look up [documentation for their dataset](https://www.ncei.noaa.gov/pub/data/noaa/isd-format-document.docx) to fully understand what the data meant and how we could best split and interpret the data.
+
 
 # Attribution
 
@@ -151,17 +157,3 @@ model could not derive on its own, and these tended to be more useful.
 
 ::: {#refs}
 :::
-
-------------------------------------------------------------------------
-
-# Notes
-
-## Data
-
-### Weather Data
-
--   Source: NOAA Integrated Surface Database (ISD)
--   Timeframe: 2024-01-01 to 2025-08-27 (latest available data)
--   Location/station: DCA72405013743
--   Data format: CSV files
--   Column information: https://www.ncei.noaa.gov/pub/data/noaa/isd-format-document.docx
