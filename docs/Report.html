@@ -176,6 +176,7 @@ div.csl-indent {
 <p>Our trained model weights are located in the <a href="https://github.com/GW-ML-Flight/Flight-Delay/tree/main/models"><code>models</code> directory</a>. Within that directory, there are subfolders for different models; for example, the <code>wang</code> directory has our implementation of the <span class="citation" data-cites="wangCalibratedExplainableFlight2026">Wang (<a href="#ref-wangCalibratedExplainableFlight2026" role="doc-biblioref">2026</a>)</span> paper, but for DCA. Within the model folders, there’s a JSON with data about our training (including hyperparameters and metrics on the different models), a PNG comparing the different models various metrics, and a <code>pkl</code> file with the trained model (the best from our hyperparameter/model search) that can be loaded to predict from later.</p>
 <p>Our cleaned datasets are located in the <a href="https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data"><code>data</code> directory</a>. Within that, there’s a subdirectory for weather data and one for flight data. For the weather data, there are CSVs with raw sensor data from the NOAA ISD dataset <span class="citation" data-cites="nationalcentersforenvironmentalinformationGlobalHourlyIntegrated">(<a href="#ref-nationalcentersforenvironmentalinformationGlobalHourlyIntegrated" role="doc-biblioref">National Centers for Environmental Information, n.d.</a>)</span>. There’s a Python file that processes those CSVs to clean that data and make it more usable as features in our models. There is also a notebook that combines the ISD Lite dataset with some data from the full dataset that provides additional information. Finally, there is a <code>parquet</code> file that contains the final cleaned weather data.</p>
 <!-- TODO: details about the flight dataset -->
+<p>The flight delay datasets are split between the <a href="https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data/flights"><code>data/flights</code></a> and [<code>data/flight_info</code>] directories. (https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data/flight_info). The actual specific flight data is all within <code>flights</code>, and then some lookup tables are in <code>flight_info</code>. The main flight delay tables were all taken from the Department of Transportation datasets These lookup tables helped to fill in information, especially regarding the aircraft registration database. Additionally, we have two main scripts. <code>combineDelaySheets.py</code> combines the data from the Bureau of Transportation Statistics <span class="citation" data-cites="bureau_of_transportation_statistics_airline_nodate">(<a href="#ref-bureau_of_transportation_statistics_airline_nodate" role="doc-biblioref">Bureau of Transportation Statistics, n.d.</a>)</span> and filters for the dates and airport of interest. The script dumps the result into an intermediary file, <code>Flight_delay.parquet</code>. The second main script adds in the data from the Federal Aviation Administration <span class="citation" data-cites="department_of_transportation_aircraft_nodate">(<a href="#ref-department_of_transportation_aircraft_nodate" role="doc-biblioref">Federal Aviation Administration, n.d.</a>)</span>, joining with the lookup tables and delay data on aircraft tail numbers. This script outputs to a final file, <code>Flight_Data_With_Aircraft_Info.parquet</code>. That file was what we ultimately joined with the weather data in order to train our model.</p>
 <p>Ultimately, our measures for success were various performance metrics, including accuracy, precision, recall, F1-score, and ROC-AUC. Our models were scored on ROC-AUC primarily during training, but we also considered the other metrics in our final evaluation.</p>
 </section>
 <section id="experiment-design" class="level1" data-number="2">
@@ -242,7 +243,9 @@ div.csl-indent {
 <ul>
 <li>Helped to collect and clean the delayed flight, aircraft registration, and airline data. Joined the data from different sources into a single usable file.</li>
 <li>Created features to track average delays for specific aircraft.</li>
-<li>Created a rolling average cancellation/delay rate for the destination airports.</li>
+<li>Created a rolling average cancellation/delay rate for the destination airports.<br>
+</li>
+<li>Wrote sections of the report to do with flight data.</li>
 </ul>
 </div>
 </div>
@@ -315,6 +318,12 @@ div.csl-indent {
 <section id="references" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-bureau_of_transportation_statistics_airline_nodate" class="csl-entry" role="listitem">
+Bureau of Transportation Statistics. n.d. <span>“Airline <span>On</span>-<span>Time</span> <span>Performance</span> <span>Data</span>.”</span> Accessed May 10, 2026. <a href="https://www.transtats.bts.gov/DatabaseInfo.asp?QO_VQ=EFD&amp;Yv0x=D">https://www.transtats.bts.gov/DatabaseInfo.asp?QO_VQ=EFD&amp;Yv0x=D</a>.
+</div>
+<div id="ref-department_of_transportation_aircraft_nodate" class="csl-entry" role="listitem">
+Federal Aviation Administration. n.d. <span>“Aircraft <span>Registration</span> <span></span> <span>Federal</span> <span>Aviation</span> <span>Administration</span>.”</span> Accessed May 10, 2026. <a href="https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/releasable_aircraft_download">https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/releasable_aircraft_download</a>.
+</div>
 <div id="ref-nationalcentersforenvironmentalinformationGlobalHourlyIntegrated" class="csl-entry" role="listitem">
 National Centers for Environmental Information. n.d. <span>“Global <span>Hourly</span> - <span>Integrated Surface Database</span> (<span>ISD</span>).”</span> Accessed March 5, 2026. <a href="https://www.ncei.noaa.gov/products/land-based-station/integrated-surface-database">https://www.ncei.noaa.gov/products/land-based-station/integrated-surface-database</a>.
 </div>
