@@ -1,2 +1,5 @@
 # TODO: remove the below
 # models/
+
+/.quarto/
+**/*.quarto_ipynb
