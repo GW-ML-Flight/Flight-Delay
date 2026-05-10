@@ -9,6 +9,10 @@ format:
         icon: github
         target: _blank
         href: https://github.com/GW-ML-Flight/Flight-Delay
+    lightbox: true
+    link-external-newwindow: true
+    link-external-icon: true
+    link-external-filter: '^(?:http:|https:)\/\/gw-ml-flight\.github\.io\/Flight-Delay'
 # jupyter: python3
 toc: true
 number-sections: true
@@ -38,9 +42,9 @@ Our trained model weights are located in the [`models` directory](https://github
 
 Our cleaned datasets are located in the [`data` directory](https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data). Within that, there's a subdirectory for weather data and one for flight data. For the weather data, there are CSVs with raw sensor data from the NOAA ISD dataset [@nationalcentersforenvironmentalinformationGlobalHourlyIntegrated]. There's a Python file that processes those CSVs to clean that data and make it more usable as features in our models. There is also a notebook that combines the ISD Lite dataset with some data from the full dataset that provides additional information. Finally, there is a `parquet` file that contains the final cleaned weather data.
 
-The flight delay datasets are split between the [`data/flights`](https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data/flights) and [`data/flight_info`](https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data/flight_info) directories. The actual specific flight data is all within `flights`, and then some lookup tables are in `flight_info`. The main flight delay tables were all taken from the Department of Transportation datasets. The lookup tables helped to fill in information, especially regarding the aircraft registration database, as much of the data was kept as codes. 
+The flight delay datasets are split between the [`data/flights`](https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data/flights) and [`data/flight_info`](https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data/flight_info) directories. The actual specific flight data is all within `flights`, and then some lookup tables are in `flight_info`. The main flight delay tables were all taken from the Department of Transportation datasets. The lookup tables helped to fill in information, especially regarding the aircraft registration database, as much of the data was kept as codes.
 
-Additionally, we have two main scripts. `combineDelaySheets.py` combines the data from the Bureau of Transportation Statistics [@bureau_of_transportation_statistics_airline_nodate] and filters for the dates and airport of interest. The script dumps the result into an intermediary file, `Flight_delay.parquet`. The second main script adds in the data from the Federal Aviation Administration [@department_of_transportation_aircraft_nodate], joining with the lookup tables and delay data on aircraft tail numbers. This script outputs to a final file, `Flight_Data_With_Aircraft_Info.parquet`. That file was what we ultimately joined with the weather data in order to train our model.  
+Additionally, we have two main scripts. `combineDelaySheets.py` combines the data from the Bureau of Transportation Statistics [@bureau_of_transportation_statistics_airline_nodate] and filters for the dates and airport of interest. The script dumps the result into an intermediary file, `Flight_delay.parquet`. The second main script adds in the data from the Federal Aviation Administration [@department_of_transportation_aircraft_nodate], joining with the lookup tables and delay data on aircraft tail numbers. This script outputs to a final file, `Flight_Data_With_Aircraft_Info.parquet`. That file was what we ultimately joined with the weather data in order to train our model.
 
 Ultimately, our measures for success were various performance metrics, including accuracy, precision, recall, F1-score, and ROC-AUC. Our models were scored on ROC-AUC primarily during training, but we also considered the other metrics in our final evaluation.
 
@@ -64,58 +68,42 @@ In the [Wang notebook](https://github.com/GW-ML-Flight/Flight-Delay/blob/main/mo
 
 The notebook also uses categorical encoding and a feature set based on the @wangCalibratedExplainableFlight2026 approach. Rather than relying on a single classifier, the Wang-inspired workflow served as a common preprocessing and evaluation framework within which we compared several tree-based ensemble methods. We also perform hyperparameter searches to compare decision-tree ensembles and boosting method. We perform post-hoc interpretation steps (permutation importance) and produce artifacts (saved model + metadata) for reproducibility. (@wangCalibratedExplainableFlight2026 did SHAP analysis to interpret their model, but we opted to go with permutation importance as a simpler alternative for our use case.)
 
-Building on the foundation of the Wang notebook, we developed a second notebook that extended the 
-feature set with additional signals we hypothesized would improve performance. This included 
-aircraft model information, which captures mechanical and capacity characteristics that may correlate 
-with delay likelihood, as well as rolling average delay by route, which encodes historical 
-performance patterns for a given origin-destination pair. Our motivation for choosing such additional features was that some delays are structural, and can be influenced by certain routes or aircraft types; we wanted to create a holistic model that was not influenced solely by historic weather and schedule data.
+Building on the foundation of the Wang notebook, we developed a second notebook that extended the feature set with additional signals we hypothesized would improve performance. This included aircraft model information, which captures mechanical and capacity characteristics that may correlate with delay likelihood, as well as rolling average delay by route, which encodes historical performance patterns for a given origin-destination pair. Our motivation for choosing such additional features was that some delays are structural, and can be influenced by certain routes or aircraft types; we wanted to create a holistic model that was not influenced solely by historic weather and schedule data.
 
-We experimented with several additional features that ultimately did not make the final model. 
-Distance was encoded both categorically (as "short," "medium," "long," and "very long") and through 
-transformations such as log distance and a distance-weather severity interaction term, but none of 
-these meaningfully improved model performance and were left out. Our theory is that features like 
-categorical distance encode information that the model can already infer from the raw distance value 
-itself, and so they provide little additional signal. In contrast, features like rolling averages of 
-weather conditions over the hours leading up to departure captured genuinely new information that the 
-model could not derive on its own, and these tended to be more useful.
+We experimented with several additional features that ultimately did not make the final model. Distance was encoded both categorically (as "short," "medium," "long," and "very long") and through transformations such as log distance and a distance-weather severity interaction term, but none of these meaningfully improved model performance and were left out. Our theory is that features like categorical distance encode information that the model can already infer from the raw distance value itself, and so they provide little additional signal. In contrast, features like rolling averages of weather conditions over the hours leading up to departure captured genuinely new information that the model could not derive on its own, and these tended to be more useful.
 
-In trying to gain better accuracy, we built a classification model in model-buckets.ipynb to classify flights as on-time (≤15m), minor delay (15–60m), significant delay (60–120m), major delay (120–180m), or severe (180m+) instead of predicting exact delay amounts. To do this we modified the same classification model used to predict cancellation to predict the delay into one of the bands. We began with smaller bands of 30 minute increments, but found that the accuracy was quite low. We experimented with a variety of different band sizes and eventally landed on the ones outlined above. We were motivated to make these changes as predicting how severe the delay would be can provide almost the same insights as an exact delay time while increasing the accuracy of our predictions. 
+In trying to gain better accuracy, we built a classification model in `model-buckets.ipynb` to classify flights as on-time ($\leq$15m), minor delay (15–60m), significant delay (60–120m), major delay (120–180m), or severe (180m+) instead of predicting exact delay amounts. To do this we modified the same classification model used to predict cancellation to predict the delay into one of the bands. We began with smaller bands of 30 minute increments, but found that the accuracy was quite low. We experimented with a variety of different band sizes and eventually landed on the ones outlined above. We were motivated to make these changes as predicting how severe the delay would be can provide almost the same insights as an exact delay time while increasing the accuracy of our predictions.
 
 # Results
 
 As mentioned in the experiment design section, we had a few different approaches throughout the project. We unfortunately did not track our performance metrics during the early stages of the project but we saw that the preliminary model (found in `model-preliminary.ipynb`) gave an output that predicted time delay even though they were pretty inaccurate. We thought that adding additional features and doing more careful feature selection would help improve the performance of that model, however adding some additional features added little to no differences and in some cases degenerated the model's performance.
 
-When we switched to a classification-based approach, we were able to track our performance metrics more effectively and found that classification improved overall predictive performance compared to our earlier regression-based attempts, though there was still substantial room for improvement. To further improve the model, we adopted and implemented the workflow proposed by Wang (2026). Building upon this Wang-inspired baseline, we then expanded the feature set with additional operational and temporal signals, including aircraft model information and rolling route-delay averages, to further enhance predictive capability. The graphs below show the progression of our models over time: Figure 1 presents the performance of the Wang-inspired classification framework, while Figure 2 shows the performance of our expanded approach with the additional engineered features.
+When we switched to a classification-based approach, we were able to track our performance metrics more effectively and found that classification improved overall predictive performance compared to our earlier regression-based attempts, though there was still substantial room for improvement. To further improve the model, we adopted and implemented the workflow proposed by Wang (2026). Building upon this Wang-inspired baseline, we then expanded the feature set with additional operational and temporal signals, including aircraft model information and rolling route-delay averages, to further enhance predictive capability. The graphs below show the progression of our models over time: @fig-wang-metrics presents the performance of the Wang-inspired classification framework, while @fig-expanded-metrics shows the performance of our expanded approach with the additional engineered features.
 
-::: {.columns}
+::: columns
+::: {.column width="50%"}
+![Baseline Wang-Inspired Model](images/metrics.png){#fig-wang-metrics width="100%"}
+:::
 
 ::: {.column width="50%"}
-![Figure 1: Baseline Wang-Inspired Model](../images/metrics.png){ width=120% }
+![Expanded Approach](images/prev-metrics.png){#fig-expanded-metrics width="100%"}
+:::
 :::
 
-::: {.column width="50%"}
-![Figure 2: Expanded Approach](../images/prev-metrics.png){ width=120% }
-:::
+@fig-wang-metrics presents the baseline Wang-inspired implementation prior to the introduction of the additional engineered features. In this model configuration, Histogram-based Gradient Boosting achieved the best overall performance, obtaining the highest ROC-AUC (0.6540), recall (0.5762), and F1-score (0.4184), while Random Forest achieved the highest precision (0.5207). Although the Wang-inspired workflow already demonstrated strong predictive capability, especially among the boosting-based ensemble methods, the comparison with @fig-expanded-metrics suggests that augmenting the feature set improved overall classification performance and shifted the strongest-performing model from Histogram-based Gradient Boosting toward Random Forest. Across both figures, ensemble approaches consistently outperformed the standalone Decision Tree model, reinforcing the effectiveness of boosted and bagged tree methods for flight-delay classification tasks. It is important to note that while the Wang-inspired workflow provided a solid foundation, the addition of carefully engineered features appears to have enhanced the model's ability to capture complex patterns in the data, leading to improved performance metrics across multiple classifiers.
 
-:::
-
-
-Figure 1 presents the baseline Wang-inspired implementation prior to the introduction of the additional engineered features. In this model configuration, Histogram-based Gradient Boosting achieved the best overall performance, obtaining the highest ROC-AUC (0.6540), recall (0.5762), and F1-score (0.4184), while Random Forest achieved the highest precision (0.5207). Although the Wang-inspired workflow already demonstrated strong predictive capability, especially among the boosting-based ensemble methods, the comparison with Figure 2 suggests that augmenting the feature set improved overall classification performance and shifted the strongest-performing model from Histogram-based Gradient Boosting toward Random Forest. Across both figures, ensemble approaches consistently outperformed the standalone Decision Tree model, reinforcing the effectiveness of boosted and bagged tree methods for flight-delay classification tasks. It is important to note that while the Wang-inspired workflow provided a solid foundation, the addition of carefully engineered features appears to have enhanced the model's ability to capture complex patterns in the data, leading to improved performance metrics across multiple classifiers.
-
-Figure 2 shows the performance of our extended feature-engineering approach, which built upon the original Wang-inspired workflow by incorporating additional operational and temporal features such as rolling route-delay averages and rolling weather-condition statistics. In this version of the model, Random Forest achieved the strongest overall performance, producing the highest ROC-AUC (0.6734), accuracy (0.7630), and precision (0.4958). Histogram-based Gradient Boosting remained highly competitive and achieved the highest recall (0.5620) and F1-score (0.4250), indicating strong balance between identifying delayed flights and limiting false negatives. XGBoost and AdaBoost produced moderate results across the evaluation metrics, while the standalone Decision Tree consistently performed worse than the ensemble-based approaches. These results suggest that the additional engineered features improved the ability of ensemble methods, particularly Random Forest, to capture more complex patterns in flight-delay behavior.
+@fig-expanded-metrics shows the performance of our extended feature-engineering approach, which built upon the original Wang-inspired workflow by incorporating additional operational and temporal features such as rolling route-delay averages and rolling weather-condition statistics. In this version of the model, Random Forest achieved the strongest overall performance, producing the highest ROC-AUC (0.6734), accuracy (0.7630), and precision (0.4958). Histogram-based Gradient Boosting remained highly competitive and achieved the highest recall (0.5620) and F1-score (0.4250), indicating strong balance between identifying delayed flights and limiting false negatives. XGBoost and AdaBoost produced moderate results across the evaluation metrics, while the standalone Decision Tree consistently performed worse than the ensemble-based approaches. These results suggest that the additional engineered features improved the ability of ensemble methods, particularly Random Forest, to capture more complex patterns in flight-delay behavior.
 
 The original workflow framed flight-delay prediction as a binary classification task, while the later bucket-based approach reformulated the problem as a multi-class classification task that predicted delay severity ranges rather than exact outcomes. The "buckets" classification approach was able to classify flights into the correct delay severity bucket with reasonable accuracy, although there is still room for improvement in this area. below is a confusion matrix showing the performance of the "buckets" model on the test set and the results of the predictions.
 
-::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
-![Figure 3: Bucket Confusion Matrix](../images/confusion_matrix.png){ width=120% }
+![Bucket Confusion Matrix](images/confusion_matrix.png){#fig-confusion width="100%"}
 :::
 
 ::: {.column width="50%"}
-![Figure 4: Bucket Results](../images/buckets-results.png){ width=120% }
+![Bucket Results](images/buckets-results.png){#fig-buckets width="100%"}
 :::
-
 :::
 
 The bucketed multi-class classification model demonstrated strong performance when identifying on-time flights, achieving a precision of 0.81, recall of 0.86, and F1-score of 0.83. This indicates that the model was highly effective at recognizing flights with delays under 15 minutes, which also represented the largest class in the dataset. Performance decreased substantially as delay severity increased, particularly for the significant and major delay categories. The significant delay bucket (60–120 minutes) achieved an F1-score of only 0.13, while the major delay bucket (120–180 minutes) achieved the weakest overall performance with an F1-score of 0.10 and recall of 0.08. These results suggest that severe delay events are considerably more difficult to predict due to their lower frequency and greater variability. Interestingly, the severe delay category (180m+) performed somewhat better than the intermediate delay classes, reaching an F1-score of 0.28, which may indicate that extremely severe delays exhibit stronger identifiable patterns than moderate disruptions. Overall model accuracy reached 0.68, though the macro-average F1-score of 0.32 highlights the challenges posed by class imbalance and the difficulty of accurately distinguishing between multiple levels of delay severity.
@@ -123,27 +111,22 @@ The bucketed multi-class classification model demonstrated strong performance wh
 Compared to the results reported by @wangCalibratedExplainableFlight2026 for Boston Logan Airport (BOS), our models achieved lower overall predictive performance, with ROC-AUC and F1-scores remaining below the XGBoost benchmark of 0.939 ROC-AUC and 0.8837 F1-score reported in their study. However, our experiments demonstrated that additional operational and temporal feature engineering improved performance within the DCA-specific context, particularly for the Random Forest and Histogram-based Gradient Boosting models. The bucket-based multi-class classification approach showed promise for predicting delay severity, though performance was notably weaker for intermediate delay categories. These results suggest that while the Wang-inspired workflow provided a strong foundation, further refinement of feature engineering and model architecture may be necessary to achieve comparable performance in the DCA context.
 
 # Lessons Learned
+
 We faced a few challenges during this project that led to some lessons learned:
 
 -   Homebrew is quite difficult to work with, especially on Apple Silicon. We spent a good amount of time troubleshooting XGBoost incorrectly stating we were running 32-bit Python on a 64-bit OS. Ended up being able to resolve the issue by ensuring the correct version of Homebrew was installed for the architecture and installing `libopm`.
-
 -   We had so much data, but it was hard to narrow down exactly what the relevant and useful features were from that data. Looking at other similar research helped, but there were still so many possibilities of features we could include that it was difficult to narrow down.
-
 -   The weather data was especially hard to work with, because the full NOAA ISD dataset combines multiple data values into one column (they're all related, but comma-separated within the cell). We had to look up [documentation for their dataset](https://www.ncei.noaa.gov/pub/data/noaa/isd-format-document.docx) to fully understand what the data meant and how we could best split and interpret the data.
 
-
 # Attribution
-
-> What did each team member do?
 
 ::: {.callout-note appearance="simple" icon="false"}
 ## Max Eichholz
 
--   Helped to collect and clean the delayed flight, aircraft registration, and airline data. Joined the data from different sources into a single usable file. 
--   Created features to track average delays for specific aircraft. 
--   Created a rolling average cancellation/delay rate for the destination airports.  
--   Wrote sections of the report to do with flight data. 
-
+-   Helped to collect and clean the delayed flight, aircraft registration, and airline data. Joined the data from different sources into a single usable file.
+-   Created features to track average delays for specific aircraft.
+-   Created a rolling average cancellation/delay rate for the destination airports.
+-   Wrote sections of the report to do with flight data.
 :::
 
 ::: {.callout-note appearance="simple" icon="false"}
@@ -160,7 +143,7 @@ We faced a few challenges during this project that led to some lessons learned:
 
 -   Helped with project ideation
 -   Helped collect and clean flight data
--   Worked on deriving features (carrier average delay over the last week and month, carrier cancel rate over the last week and month, departures over various time periods, airport average cancel rate over various time periods, airport average cancel rate over various time periods) to improve model accuracy 
+-   Worked on deriving features (carrier average delay over the last week and month, carrier cancel rate over the last week and month, departures over various time periods, airport average cancel rate over various time periods) to improve model accuracy
 -   Assisted with the ideation for the model skeleton
 -   Implemented the "buckets" model
 :::
@@ -171,7 +154,7 @@ We faced a few challenges during this project that led to some lessons learned:
 -   Helped collect and clean weather data.
 -   Integrated features from the training approach into the classification approach, evaluating features like average delay across routes, categorical distance data, and distance transformations to build upon the Wang model.
 -   Developed weather trend features including change in windspeed and precipitation over the hours closest to departure.
--   Wrote and edited sections of the report related to the methodology and model design. 
+-   Wrote and edited sections of the report related to the methodology and model design.
 :::
 
 ::: {.callout-note appearance="simple" icon="false"}
@@ -180,6 +163,7 @@ We faced a few challenges during this project that led to some lessons learned:
 -   Helped collect and clean weather data into a usable Parquet format for the model.
 -   Developed the model skeleton code/pipeline (i.e., importing our two datasets, merging them, setting up hyperparameter search, training, and evaluation).
 -   Led the implementation of the classification approach, especially the version closest to @wangCalibratedExplainableFlight2026.
+-   Wrote and edited various sections of the report; setup the Quarto site.
 :::
 
 # References
