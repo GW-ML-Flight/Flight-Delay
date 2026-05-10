@@ -24,10 +24,11 @@ author:
       email: laurenschmidt@gwu.edu
     - name: Ozzy Simpson
       email: ozzy@gwu.edu
-abstract: | # TODO: Write an abstract
-  In this project, we developed a machine learning model to classify and predict flight delays for flights departing from Washintion National Airport (DCA). We collected and cleaned a large dataset of flight and weather data, engineered features based on prior research and domain knowledge, and trained several tree-based classifiers to predict whether a flight would be delayed or not. We also experimented with predicting delay severity using a "buckets" classification approach. Our results showed that incorporating additional features such as aircraft model information and rolling average delay by route improved model performance compared to a baseline model inspired by prior work. We discuss our methodology, results, and lessons learned throughout the project.
-
 ---
+
+# Abstract
+
+In this project, we developed a machine learning model to classify and predict flight delays for flights departing from Washington National Airport (DCA). We collected and cleaned a large dataset of flight and weather data, engineered features based on prior research and domain knowledge, and trained several tree-based classifiers to predict whether a flight would be delayed or not. We also experimented with predicting delay severity using a "buckets" classification approach. Our results showed that incorporating additional features such as aircraft model information and rolling average delay by route improved model performance compared to a baseline model inspired by prior work. We discuss our methodology, results, and lessons learned throughout the project.
 
 # Deliverables
 
