@@ -47,7 +47,8 @@ Our trained model weights are located in the [`models` directory](https://github
 
 Our cleaned datasets are located in the [`data` directory](https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data). Within that, there's a subdirectory for weather data and one for flight data. For the weather data, there are CSVs with raw sensor data from the NOAA ISD dataset [@nationalcentersforenvironmentalinformationGlobalHourlyIntegrated]. There's a Python file that processes those CSVs to clean that data and make it more usable as features in our models. There is also a notebook that combines the ISD Lite dataset with some data from the full dataset that provides additional information. Finally, there is a `parquet` file that contains the final cleaned weather data.
 
-<!-- TODO: details about the flight dataset -->
+<!-- TODO: details about the flight dataset --> 
+The flight delay datasets are split between the [`data/flights`](https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data/flights) and [`data/flight_info`] directories. (https://github.com/GW-ML-Flight/Flight-Delay/tree/main/data/flight_info). The actual specific flight data is all within `flights`, and then some lookup tables are in `flight_info`. These lookup tables helped to fill in information, especially regarding the aircraft registration database. 
 
 Ultimately, our measures for success were various performance metrics, including accuracy, precision, recall, F1-score, and ROC-AUC. Our models were scored on ROC-AUC primarily during training, but we also considered the other metrics in our final evaluation.
 
