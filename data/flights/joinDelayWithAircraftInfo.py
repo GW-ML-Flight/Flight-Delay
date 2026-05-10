@@ -7,19 +7,19 @@ def load_data():
     # Read registration data with schema overrides to treat all columns as strings initially
     # This prevents Polars from incorrectly inferring numeric types for mixed columns
     reg = pl.read_csv(
-        "data/flights/flightRegistration.csv",
+        "data/flight_info/flightRegistration.csv",
         infer_schema_length=0,  # Read all columns as strings
         ignore_errors=False,
         quote_char=None,  # Disable quote parsing since quotes aren't properly escaped
     )
 
     lookup = pl.read_csv(
-        "data/flights/N_Number_Lookup.csv",
+        "data/flight_info/N_Number_Lookup.csv",
         infer_schema_length=0,  # Read all columns as strings
         quote_char=None,  # Disable quote parsing - fields have embedded quotes that aren't escaped
     )
 
-    flights = pl.read_parquet("data/flights/dca_flights.parquet")
+    flights = pl.read_parquet("data/flight_info/dca_flights.parquet")
 
     return reg, lookup, flights
 
