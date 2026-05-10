@@ -147,7 +147,7 @@ def printData(df: pl.DataFrame):
 if __name__ == "__main__":
     df = process_multiple_files(
         directory=Path(__file__).parent,
-        output_path=Path(__file__).parent / "dca_flights.parquet",
+        output_path=Path(__file__).parent / "flight_delay.parquet",
     )
 
     printData(df)

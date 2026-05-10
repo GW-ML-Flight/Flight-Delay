@@ -6,6 +6,8 @@ import polars as pl
 def load_data():
     # Read registration data with schema overrides to treat all columns as strings initially
     # This prevents Polars from incorrectly inferring numeric types for mixed columns
+    
+    # Contains information about the actual registration
     reg = pl.read_csv(
         "data/flight_info/flightRegistration.csv",
         infer_schema_length=0,  # Read all columns as strings
@@ -13,13 +15,14 @@ def load_data():
         quote_char=None,  # Disable quote parsing since quotes aren't properly escaped
     )
 
+    # Contains information about the actual aircraft with the registration
     lookup = pl.read_csv(
         "data/flight_info/N_Number_Lookup.csv",
         infer_schema_length=0,  # Read all columns as strings
         quote_char=None,  # Disable quote parsing - fields have embedded quotes that aren't escaped
     )
 
-    flights = pl.read_parquet("data/flight_info/dca_flights.parquet")
+    flights = pl.read_parquet("data/flights/flightData.parquet")
 
     return reg, lookup, flights
 
@@ -50,7 +53,7 @@ def clean_lookup(lookup: pl.DataFrame) -> pl.DataFrame:
 
 
 def clean_flights(flights: pl.DataFrame) -> pl.DataFrame:
-    return flights.with_columns([pl.col("TAIL_NUM").str.strip_chars()])
+    return flights.with_columns([pl.col("Tail Number").str.strip_chars()])
 
 
 def join_all(reg, lookup, flights):
@@ -61,7 +64,7 @@ def join_all(reg, lookup, flights):
 
     # Join flights + registration
     full = flights.join(
-        reg_lookup, left_on="TAIL_NUM", right_on="TAIL_NUM_CLEAN", how="left"
+        reg_lookup, left_on="Tail Number", right_on="TAIL_NUM_CLEAN", how="left"
     )
 
     return full
@@ -85,7 +88,7 @@ def main():
 
     df = join_all(reg, lookup, flights)
 
-    output_path = Path("data/flights/Full_Flight_Data.parquet")
+    output_path = Path("data/flights/Flight_Data_With_Aircraft_Info.parquet")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.write_parquet(output_path)
 
