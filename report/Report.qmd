@@ -122,6 +122,7 @@ We faced a few challenges during this project that led to some lessons learned:
 
 -   Helped to collect and clean the delayed flight, aircraft registration, and airline data. Joined the data from different sources into a single usable file. 
 -   Created features to track average delays for specific aircraft. 
+-   Created a rolling average cancellation/delay rate for the destination airports.  
 
 
 :::
