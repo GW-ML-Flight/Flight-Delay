@@ -22,7 +22,7 @@ Good feature buckets
 - [x] Distance transforms from DISTANCE: log(distance), distance buckets, and maybe an interaction like distance * weather_severity.
 - [ ] Carrier-route interactions from the flight table: MKT_UNIQUE_CARRIER + route, since some carriers handle specific routes much better or worse.
 - [ ] Aircraft model features from MODEL: model frequency, model-specific average delay, and model-specific cancellation rate. This is mostly a historical lookup table.
-- [ ] 
+
 Easy work split
 
 - Person 1: time features and distance transforms.
